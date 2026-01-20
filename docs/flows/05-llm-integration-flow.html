@@ -1,0 +1,879 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LLM Integration Flow - Code Agent</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+        :root {
+            --primary: #f97316;
+            --primary-glow: rgba(249, 115, 22, 0.4);
+            --secondary: #8b5cf6;
+            --claude: #d97706;
+            --ollama: #22c55e;
+            --bg-dark: #030712;
+            --bg-card: rgba(15, 23, 42, 0.8);
+            --bg-glass: rgba(255, 255, 255, 0.03);
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --border: rgba(148, 163, 184, 0.1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', system-ui, sans-serif;
+            background: var(--bg-dark);
+            color: var(--text-primary);
+            min-height: 100vh;
+        }
+
+        .bg-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background:
+                radial-gradient(circle at 25% 25%, rgba(249, 115, 22, 0.08) 0%, transparent 50%),
+                radial-gradient(circle at 75% 75%, rgba(139, 92, 246, 0.08) 0%, transparent 50%);
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+
+        .header-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--bg-glass);
+            border: 1px solid var(--primary);
+            padding: 8px 20px;
+            border-radius: 50px;
+            font-size: 0.85rem;
+            color: var(--primary);
+            margin-bottom: 20px;
+        }
+
+        .header h1 {
+            font-size: 3.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #f97316 0%, #fbbf24 50%, #f59e0b 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 15px;
+        }
+
+        .header p {
+            font-size: 1.25rem;
+            color: var(--text-secondary);
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        /* Provider Cards */
+        .providers-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 60px;
+        }
+
+        .provider-card {
+            background: var(--bg-card);
+            border: 2px solid var(--border);
+            border-radius: 24px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .provider-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        .provider-card.claude:hover { border-color: var(--claude); }
+        .provider-card.ollama:hover { border-color: var(--ollama); }
+
+        .provider-header {
+            padding: 35px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .provider-card.claude .provider-header {
+            background: linear-gradient(135deg, rgba(217, 119, 6, 0.15), transparent);
+        }
+
+        .provider-card.ollama .provider-header {
+            background: linear-gradient(135deg, rgba(34, 197, 94, 0.15), transparent);
+        }
+
+        .provider-icon {
+            width: 80px;
+            height: 80px;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+        }
+
+        .provider-card.claude .provider-icon { background: linear-gradient(135deg, #d97706, #f59e0b); }
+        .provider-card.ollama .provider-icon { background: linear-gradient(135deg, #22c55e, #10b981); }
+
+        .provider-info h3 {
+            font-size: 1.6rem;
+            margin-bottom: 8px;
+        }
+
+        .provider-info p {
+            color: var(--text-secondary);
+        }
+
+        .provider-badge {
+            margin-left: auto;
+            padding: 8px 16px;
+            border-radius: 50px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .provider-card.claude .provider-badge {
+            background: rgba(217, 119, 6, 0.2);
+            color: var(--claude);
+        }
+
+        .provider-card.ollama .provider-badge {
+            background: rgba(34, 197, 94, 0.2);
+            color: var(--ollama);
+        }
+
+        .provider-body {
+            padding: 30px 35px;
+            border-top: 1px solid var(--border);
+        }
+
+        .provider-features {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .feature-item {
+            background: var(--bg-glass);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 15px;
+        }
+
+        .feature-item strong {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 0.85rem;
+        }
+
+        .feature-item span {
+            color: var(--text-secondary);
+            font-size: 0.8rem;
+        }
+
+        .code-block {
+            background: #0d1117;
+            border-radius: 12px;
+            padding: 20px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem;
+            overflow-x: auto;
+            line-height: 1.7;
+        }
+
+        .code-block .keyword { color: #ff7b72; }
+        .code-block .class { color: #ffa657; }
+        .code-block .string { color: #a5d6ff; }
+        .code-block .comment { color: #8b949e; }
+        .code-block .number { color: #79c0ff; }
+        .code-block .param { color: #d2a8ff; }
+
+        /* Provider Selection Flow */
+        .selection-flow {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            padding: 40px;
+            margin-bottom: 60px;
+        }
+
+        .selection-flow h2 {
+            text-align: center;
+            margin-bottom: 40px;
+            font-size: 1.8rem;
+        }
+
+        .flow-diagram {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+            flex-wrap: wrap;
+            margin-bottom: 30px;
+        }
+
+        .flow-node {
+            background: var(--bg-glass);
+            border: 2px solid var(--border);
+            border-radius: 16px;
+            padding: 25px 35px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .flow-node:hover {
+            transform: scale(1.05);
+        }
+
+        .flow-node.start { border-color: var(--primary); }
+        .flow-node.decision {
+            border-color: var(--secondary);
+            background: rgba(139, 92, 246, 0.1);
+            border-radius: 16px;
+            transform: rotate(0deg);
+        }
+        .flow-node.claude-out { border-color: var(--claude); }
+        .flow-node.ollama-out { border-color: var(--ollama); }
+
+        .flow-node .icon {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        .flow-node h4 {
+            font-size: 1rem;
+            margin-bottom: 5px;
+        }
+
+        .flow-node span {
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+        }
+
+        .flow-arrow {
+            font-size: 1.8rem;
+            color: var(--primary);
+        }
+
+        .selection-code {
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        /* Comparison Table */
+        .comparison-section {
+            margin-bottom: 60px;
+        }
+
+        .comparison-section h2 {
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 1.8rem;
+        }
+
+        .comparison-table {
+            width: 100%;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            overflow: hidden;
+        }
+
+        .comparison-table th,
+        .comparison-table td {
+            padding: 20px;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .comparison-table th {
+            background: rgba(249, 115, 22, 0.1);
+            font-weight: 600;
+        }
+
+        .comparison-table th:first-child {
+            width: 25%;
+        }
+
+        .comparison-table td {
+            color: var(--text-secondary);
+        }
+
+        .comparison-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .comparison-table .highlight-claude {
+            color: var(--claude);
+            font-weight: 500;
+        }
+
+        .comparison-table .highlight-ollama {
+            color: var(--ollama);
+            font-weight: 500;
+        }
+
+        /* Streaming Section */
+        .streaming-section {
+            background: linear-gradient(135deg, rgba(249, 115, 22, 0.1), rgba(139, 92, 246, 0.1));
+            border: 1px solid var(--primary);
+            border-radius: 24px;
+            padding: 40px;
+            margin-bottom: 60px;
+        }
+
+        .streaming-section h2 {
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 1.8rem;
+        }
+
+        .streaming-section > p {
+            text-align: center;
+            color: var(--text-secondary);
+            margin-bottom: 40px;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .streaming-comparison {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .streaming-card {
+            background: var(--bg-card);
+            border-radius: 20px;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .streaming-card.bad { border: 2px solid #ef4444; }
+        .streaming-card.good { border: 2px solid var(--ollama); }
+
+        .streaming-card h4 {
+            margin-bottom: 20px;
+            font-size: 1.1rem;
+        }
+
+        .streaming-card.bad h4 { color: #ef4444; }
+        .streaming-card.good h4 { color: var(--ollama); }
+
+        .timeline {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+            margin-bottom: 20px;
+        }
+
+        .timeline-block {
+            width: 30px;
+            height: 20px;
+            border-radius: 4px;
+            background: var(--border);
+        }
+
+        .streaming-card.bad .timeline-block:last-child {
+            background: #ef4444;
+        }
+
+        .streaming-card.good .timeline-block {
+            background: var(--ollama);
+            animation: fadeIn 0.3s ease forwards;
+        }
+
+        .streaming-card.good .timeline-block:nth-child(1) { animation-delay: 0s; }
+        .streaming-card.good .timeline-block:nth-child(2) { animation-delay: 0.3s; }
+        .streaming-card.good .timeline-block:nth-child(3) { animation-delay: 0.6s; }
+        .streaming-card.good .timeline-block:nth-child(4) { animation-delay: 0.9s; }
+        .streaming-card.good .timeline-block:nth-child(5) { animation-delay: 1.2s; }
+        .streaming-card.good .timeline-block:nth-child(6) { animation-delay: 1.5s; }
+
+        @keyframes fadeIn {
+            from { opacity: 0.3; }
+            to { opacity: 1; }
+        }
+
+        .streaming-card p {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .streaming-code {
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        /* Profile System */
+        .profiles-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 60px;
+        }
+
+        .profile-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 25px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .profile-card:hover {
+            border-color: var(--primary);
+            transform: translateY(-5px);
+        }
+
+        .profile-card h4 {
+            font-size: 1rem;
+            margin-bottom: 10px;
+            color: var(--primary);
+        }
+
+        .profile-card p {
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            margin-bottom: 15px;
+        }
+
+        .profile-stats {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            font-size: 0.8rem;
+        }
+
+        .profile-stats span {
+            background: var(--bg-glass);
+            padding: 4px 10px;
+            border-radius: 6px;
+            color: var(--text-secondary);
+        }
+
+        /* Interview Section */
+        .interview-section {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            padding: 40px;
+        }
+
+        .interview-section h2 {
+            text-align: center;
+            margin-bottom: 30px;
+            color: var(--primary);
+        }
+
+        .qa-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 20px;
+        }
+
+        .qa-item {
+            background: var(--bg-glass);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 25px;
+        }
+
+        .qa-item h4 {
+            color: #f472b6;
+            margin-bottom: 12px;
+            font-size: 1rem;
+        }
+
+        .qa-item p {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            line-height: 1.7;
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            margin-top: 60px;
+            padding: 30px;
+            border-top: 1px solid var(--border);
+            color: var(--text-secondary);
+        }
+
+        .footer a {
+            color: var(--primary);
+            text-decoration: none;
+        }
+
+        @media (max-width: 900px) {
+            .header h1 { font-size: 2.5rem; }
+            .providers-section { grid-template-columns: 1fr; }
+            .streaming-comparison { grid-template-columns: 1fr; }
+            .flow-diagram { flex-direction: column; }
+            .flow-arrow { transform: rotate(90deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-animation"></div>
+
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-badge">🤖 LLM INTEGRATION</div>
+            <h1>LLM Integration Flow</h1>
+            <p>How Code Agent connects to and switches between multiple LLM providers</p>
+        </header>
+
+        <!-- Provider Cards -->
+        <section class="providers-section">
+            <div class="provider-card claude">
+                <div class="provider-header">
+                    <div class="provider-icon">☁️</div>
+                    <div class="provider-info">
+                        <h3>Claude (Anthropic)</h3>
+                        <p>Cloud-based, production-ready</p>
+                    </div>
+                    <span class="provider-badge">CLOUD</span>
+                </div>
+                <div class="provider-body">
+                    <div class="provider-features">
+                        <div class="feature-item">
+                            <strong>Model</strong>
+                            <span>claude-sonnet-4-5-20250929</span>
+                        </div>
+                        <div class="feature-item">
+                            <strong>Context</strong>
+                            <span>200K tokens</span>
+                        </div>
+                        <div class="feature-item">
+                            <strong>Speed</strong>
+                            <span>Fast inference</span>
+                        </div>
+                        <div class="feature-item">
+                            <strong>Auth</strong>
+                            <span>API Key required</span>
+                        </div>
+                    </div>
+                    <div class="code-block">
+<pre><span class="keyword">from</span> agno.models.anthropic <span class="keyword">import</span> Claude
+
+model = <span class="class">Claude</span>(
+    id=<span class="string">"claude-sonnet-4-5-20250929"</span>,
+    api_key=settings.anthropic_api_key,
+    temperature=<span class="number">0.2</span>,
+    max_tokens=<span class="number">10000</span>
+)</pre>
+                    </div>
+                </div>
+            </div>
+
+            <div class="provider-card ollama">
+                <div class="provider-header">
+                    <div class="provider-icon">🏠</div>
+                    <div class="provider-info">
+                        <h3>Ollama (Local)</h3>
+                        <p>Privacy-first, self-hosted</p>
+                    </div>
+                    <span class="provider-badge">LOCAL</span>
+                </div>
+                <div class="provider-body">
+                    <div class="provider-features">
+                        <div class="feature-item">
+                            <strong>Models</strong>
+                            <span>qwen, llama, codellama</span>
+                        </div>
+                        <div class="feature-item">
+                            <strong>Context</strong>
+                            <span>32K tokens</span>
+                        </div>
+                        <div class="feature-item">
+                            <strong>Privacy</strong>
+                            <span>100% local</span>
+                        </div>
+                        <div class="feature-item">
+                            <strong>Cost</strong>
+                            <span>Free (your hardware)</span>
+                        </div>
+                    </div>
+                    <div class="code-block">
+<pre><span class="keyword">from</span> agno.models.ollama <span class="keyword">import</span> Ollama
+
+model = <span class="class">Ollama</span>(
+    id=<span class="string">"qwen2.5-coder:7b"</span>,
+    host=<span class="string">"http://localhost:11434"</span>,
+    options={
+        <span class="string">"temperature"</span>: <span class="number">0.1</span>,
+        <span class="string">"num_ctx"</span>: <span class="number">32768</span>,
+    }
+)</pre>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Provider Selection Flow -->
+        <section class="selection-flow">
+            <h2>🔀 Provider Selection Flow</h2>
+
+            <div class="flow-diagram">
+                <div class="flow-node start">
+                    <div class="icon">⚙️</div>
+                    <h4>Settings</h4>
+                    <span>llm_provider</span>
+                </div>
+                <div class="flow-arrow">→</div>
+                <div class="flow-node decision">
+                    <div class="icon">❓</div>
+                    <h4>Which Provider?</h4>
+                    <span>Check config</span>
+                </div>
+                <div class="flow-arrow">→</div>
+                <div class="flow-node claude-out">
+                    <div class="icon">☁️</div>
+                    <h4>Claude</h4>
+                    <span>if "anthropic"</span>
+                </div>
+            </div>
+
+            <div class="flow-diagram" style="margin-top: -10px;">
+                <div style="width: 200px;"></div>
+                <div class="flow-arrow" style="transform: rotate(90deg);">↓</div>
+                <div class="flow-node ollama-out">
+                    <div class="icon">🏠</div>
+                    <h4>Ollama</h4>
+                    <span>if "ollama"</span>
+                </div>
+            </div>
+
+            <div class="selection-code">
+                <div class="code-block">
+<pre><span class="keyword">def</span> <span class="param">get_model</span>():
+    <span class="string">"""Factory function for LLM provider selection."""</span>
+
+    <span class="keyword">if</span> settings.llm_provider == <span class="string">"anthropic"</span>:
+        <span class="keyword">return</span> <span class="class">Claude</span>(
+            id=settings.anthropic_model,
+            api_key=settings.anthropic_api_key,
+            temperature=<span class="number">0.2</span>,
+            max_tokens=<span class="number">10000</span>
+        )
+    <span class="keyword">else</span>:  <span class="comment"># ollama</span>
+        <span class="keyword">return</span> <span class="class">Ollama</span>(
+            id=settings.ollama_model,
+            host=settings.ollama_base_url,
+            options={<span class="string">"temperature"</span>: <span class="number">0.1</span>, <span class="string">"num_ctx"</span>: <span class="number">32768</span>}
+        )</pre>
+                </div>
+            </div>
+        </section>
+
+        <!-- Comparison Table -->
+        <section class="comparison-section">
+            <h2>📊 Provider Comparison</h2>
+
+            <table class="comparison-table">
+                <tr>
+                    <th>Aspect</th>
+                    <th>Claude (Anthropic)</th>
+                    <th>Ollama (Local)</th>
+                </tr>
+                <tr>
+                    <td><strong>Context Window</strong></td>
+                    <td class="highlight-claude">200K tokens</td>
+                    <td class="highlight-ollama">32K tokens (configurable)</td>
+                </tr>
+                <tr>
+                    <td><strong>Speed</strong></td>
+                    <td class="highlight-claude">Very Fast (~50 tokens/sec)</td>
+                    <td class="highlight-ollama">Depends on hardware</td>
+                </tr>
+                <tr>
+                    <td><strong>Privacy</strong></td>
+                    <td>Data sent to Anthropic servers</td>
+                    <td class="highlight-ollama">100% local, no data leaves machine</td>
+                </tr>
+                <tr>
+                    <td><strong>Cost</strong></td>
+                    <td>Pay per token (~$3/1M tokens)</td>
+                    <td class="highlight-ollama">Free (hardware cost only)</td>
+                </tr>
+                <tr>
+                    <td><strong>Internet Required</strong></td>
+                    <td>Yes</td>
+                    <td class="highlight-ollama">No</td>
+                </tr>
+                <tr>
+                    <td><strong>Best For</strong></td>
+                    <td class="highlight-claude">Production, complex reasoning</td>
+                    <td class="highlight-ollama">Privacy-sensitive, offline work</td>
+                </tr>
+            </table>
+        </section>
+
+        <!-- Streaming Section -->
+        <section class="streaming-section">
+            <h2>📡 Streaming Responses</h2>
+            <p>Code Agent streams LLM responses token-by-token for instant feedback</p>
+
+            <div class="streaming-comparison">
+                <div class="streaming-card bad">
+                    <h4>❌ Without Streaming</h4>
+                    <div class="timeline">
+                        <div class="timeline-block"></div>
+                        <div class="timeline-block"></div>
+                        <div class="timeline-block"></div>
+                        <div class="timeline-block"></div>
+                        <div class="timeline-block"></div>
+                        <div class="timeline-block"></div>
+                    </div>
+                    <p>Wait 5-30 seconds... then entire response appears at once</p>
+                </div>
+
+                <div class="streaming-card good">
+                    <h4>✓ With Streaming</h4>
+                    <div class="timeline">
+                        <div class="timeline-block"></div>
+                        <div class="timeline-block"></div>
+                        <div class="timeline-block"></div>
+                        <div class="timeline-block"></div>
+                        <div class="timeline-block"></div>
+                        <div class="timeline-block"></div>
+                    </div>
+                    <p>First token in ~100ms, response builds progressively</p>
+                </div>
+            </div>
+
+            <div class="streaming-code">
+                <div class="code-block">
+<pre><span class="comment"># Enable streaming in agent</span>
+agent = <span class="class">Agent</span>(model=model, stream=<span class="keyword">True</span>)
+
+<span class="comment"># Consume stream in real-time</span>
+response = agent.run(message, stream=<span class="keyword">True</span>)
+
+<span class="keyword">for</span> chunk <span class="keyword">in</span> response:
+    <span class="keyword">if</span> chunk.content:
+        <span class="comment"># Display immediately - no waiting!</span>
+        print(chunk.content, end=<span class="string">""</span>, flush=<span class="keyword">True</span>)
+
+    <span class="keyword">if</span> chunk.tool_calls:
+        <span class="comment"># Show tool execution status</span>
+        display_tool_progress(chunk.tool_calls)</pre>
+                </div>
+            </div>
+        </section>
+
+        <!-- Profiles Section -->
+        <section>
+            <h2 style="text-align: center; margin-bottom: 30px; font-size: 1.8rem;">🎛️ Built-in Profiles</h2>
+            <div class="profiles-section">
+                <div class="profile-card">
+                    <h4>default</h4>
+                    <p>Balanced settings for general use</p>
+                    <div class="profile-stats">
+                        <span>temp: 0.2</span>
+                        <span>tokens: 10K</span>
+                    </div>
+                </div>
+                <div class="profile-card">
+                    <h4>fast</h4>
+                    <p>Quick responses, lower quality</p>
+                    <div class="profile-stats">
+                        <span>temp: 0.1</span>
+                        <span>tokens: 4K</span>
+                    </div>
+                </div>
+                <div class="profile-card">
+                    <h4>creative</h4>
+                    <p>More varied, exploratory outputs</p>
+                    <div class="profile-stats">
+                        <span>temp: 0.8</span>
+                        <span>tokens: 10K</span>
+                    </div>
+                </div>
+                <div class="profile-card">
+                    <h4>precise</h4>
+                    <p>Deterministic, consistent results</p>
+                    <div class="profile-stats">
+                        <span>temp: 0.0</span>
+                        <span>tokens: 10K</span>
+                    </div>
+                </div>
+                <div class="profile-card">
+                    <h4>debug</h4>
+                    <p>Verbose output for troubleshooting</p>
+                    <div class="profile-stats">
+                        <span>temp: 0.1</span>
+                        <span>verbose: on</span>
+                    </div>
+                </div>
+                <div class="profile-card">
+                    <h4>review</h4>
+                    <p>Optimized for code review tasks</p>
+                    <div class="profile-stats">
+                        <span>temp: 0.1</span>
+                        <span>focused</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Interview Section -->
+        <section class="interview-section">
+            <h2>🎯 Interview Key Points</h2>
+
+            <div class="qa-grid">
+                <div class="qa-item">
+                    <h4>Q: Why support multiple LLM providers?</h4>
+                    <p><strong>Flexibility and use-case optimization.</strong> Claude is best for production with its speed and large context. Ollama enables offline work and ensures no data leaves the machine - critical for sensitive codebases. Users can switch based on their needs without changing code.</p>
+                </div>
+                <div class="qa-item">
+                    <h4>Q: What is streaming and why use it?</h4>
+                    <p><strong>Streaming sends tokens as they're generated.</strong> Instead of waiting 5-30 seconds for the complete response, users see the first token in ~100ms. This dramatically improves perceived performance and allows cancellation mid-response if the output is going wrong.</p>
+                </div>
+                <div class="qa-item">
+                    <h4>Q: How does the provider abstraction work?</h4>
+                    <p><strong>Factory pattern with common interface.</strong> The get_model() function checks settings and returns the appropriate provider instance. Both Claude and Ollama implement the same interface (run, stream, tool support), so the agent code doesn't need to know which one is active.</p>
+                </div>
+                <div class="qa-item">
+                    <h4>Q: What is temperature in LLMs?</h4>
+                    <p><strong>Controls randomness in output.</strong> Temperature 0.0 = deterministic (always same output). Temperature 1.0 = creative (more varied). For code, we use low temperature (0.1-0.2) for consistency. For brainstorming, higher values work better.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>LLM Integration Flow • Code Agent Architecture</p>
+            <p style="margin-top: 10px;"><a href="index.html">← Back to Index</a></p>
+        </footer>
+    </div>
+</body>
+</html>

@@ -1,0 +1,1220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Code Agent - Architecture Diagram</title>
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --secondary: #10b981;
+            --accent: #f59e0b;
+            --danger: #ef4444;
+            --bg-dark: #0f172a;
+            --bg-card: #1e293b;
+            --bg-card-hover: #334155;
+            --text-primary: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --border: #334155;
+            --gradient-1: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+            --gradient-2: linear-gradient(135deg, #10b981 0%, #14b8a6 100%);
+            --gradient-3: linear-gradient(135deg, #f59e0b 0%, #f97316 100%);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: var(--bg-dark);
+            color: var(--text-primary);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            margin-bottom: 60px;
+            padding: 40px;
+            background: var(--gradient-1);
+            border-radius: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+        }
+
+        .header h1 {
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            position: relative;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        }
+
+        .header .subtitle {
+            font-size: 1.3rem;
+            opacity: 0.9;
+            position: relative;
+        }
+
+        .header .badge {
+            display: inline-block;
+            background: rgba(255,255,255,0.2);
+            padding: 8px 20px;
+            border-radius: 50px;
+            margin-top: 20px;
+            font-weight: 600;
+            position: relative;
+        }
+
+        /* Section */
+        .section {
+            margin-bottom: 60px;
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .section-number {
+            width: 50px;
+            height: 50px;
+            background: var(--gradient-1);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .section-title {
+            font-size: 1.8rem;
+            font-weight: 600;
+        }
+
+        /* Architecture Flow */
+        .flow-container {
+            position: relative;
+            padding: 40px 0;
+        }
+
+        .flow-row {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .flow-box {
+            background: var(--bg-card);
+            border: 2px solid var(--border);
+            border-radius: 16px;
+            padding: 25px 35px;
+            text-align: center;
+            min-width: 200px;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .flow-box:hover {
+            transform: translateY(-5px);
+            border-color: var(--primary);
+            box-shadow: 0 10px 40px rgba(99, 102, 241, 0.2);
+        }
+
+        .flow-box.primary {
+            background: var(--gradient-1);
+            border: none;
+        }
+
+        .flow-box.secondary {
+            background: var(--gradient-2);
+            border: none;
+        }
+
+        .flow-box.accent {
+            background: var(--gradient-3);
+            border: none;
+        }
+
+        .flow-box h3 {
+            font-size: 1.1rem;
+            margin-bottom: 5px;
+        }
+
+        .flow-box p {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        .flow-box.primary p,
+        .flow-box.secondary p,
+        .flow-box.accent p {
+            color: rgba(255,255,255,0.8);
+        }
+
+        .flow-arrow {
+            font-size: 2rem;
+            color: var(--primary);
+            animation: pulse 2s infinite;
+        }
+
+        .flow-arrow-down {
+            text-align: center;
+            font-size: 2.5rem;
+            color: var(--primary);
+            margin: 20px 0;
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(10px); }
+        }
+
+        /* Layer Diagram */
+        .layer-stack {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .layer {
+            background: var(--bg-card);
+            border-radius: 16px;
+            padding: 25px 30px;
+            border-left: 5px solid var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .layer:hover {
+            transform: translateX(10px);
+            background: var(--bg-card-hover);
+        }
+
+        .layer:nth-child(1) { border-color: #6366f1; }
+        .layer:nth-child(2) { border-color: #8b5cf6; }
+        .layer:nth-child(3) { border-color: #a855f7; }
+        .layer:nth-child(4) { border-color: #c084fc; }
+        .layer:nth-child(5) { border-color: #d8b4fe; }
+
+        .layer-icon {
+            width: 60px;
+            height: 60px;
+            background: var(--bg-dark);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            flex-shrink: 0;
+        }
+
+        .layer-content h3 {
+            font-size: 1.2rem;
+            margin-bottom: 5px;
+        }
+
+        .layer-content p {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .layer-files {
+            margin-left: auto;
+            background: var(--bg-dark);
+            padding: 10px 15px;
+            border-radius: 8px;
+            font-family: 'Consolas', monospace;
+            font-size: 0.8rem;
+            color: var(--secondary);
+        }
+
+        /* Component Grid */
+        .component-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .component-card {
+            background: var(--bg-card);
+            border-radius: 16px;
+            padding: 25px;
+            border: 1px solid var(--border);
+            transition: all 0.3s ease;
+        }
+
+        .component-card:hover {
+            border-color: var(--primary);
+            transform: translateY(-5px);
+            box-shadow: 0 10px 40px rgba(99, 102, 241, 0.15);
+        }
+
+        .component-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 15px;
+        }
+
+        .component-icon {
+            width: 45px;
+            height: 45px;
+            background: var(--gradient-1);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+        }
+
+        .component-card h3 {
+            font-size: 1.1rem;
+        }
+
+        .component-card p {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-bottom: 15px;
+        }
+
+        .component-tech {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .tech-tag {
+            background: var(--bg-dark);
+            padding: 5px 12px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            color: var(--secondary);
+            font-family: 'Consolas', monospace;
+        }
+
+        /* Tool System */
+        .tool-category {
+            background: var(--bg-card);
+            border-radius: 16px;
+            padding: 25px;
+            margin-bottom: 20px;
+            border: 1px solid var(--border);
+        }
+
+        .tool-category h3 {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+        }
+
+        .tool-category h3 span {
+            background: var(--primary);
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: normal;
+        }
+
+        .tool-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 10px;
+        }
+
+        .tool-item {
+            background: var(--bg-dark);
+            padding: 12px 15px;
+            border-radius: 8px;
+            font-family: 'Consolas', monospace;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s ease;
+        }
+
+        .tool-item:hover {
+            background: var(--bg-card-hover);
+            color: var(--secondary);
+        }
+
+        .tool-item::before {
+            content: '▸';
+            color: var(--primary);
+        }
+
+        /* Request Flow Diagram */
+        .request-flow {
+            display: flex;
+            flex-direction: column;
+            gap: 0;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .flow-step {
+            display: flex;
+            align-items: stretch;
+            min-height: 100px;
+        }
+
+        .flow-step-number {
+            width: 60px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+        }
+
+        .flow-step-circle {
+            width: 40px;
+            height: 40px;
+            background: var(--gradient-1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1rem;
+            z-index: 1;
+        }
+
+        .flow-step-line {
+            width: 3px;
+            flex-grow: 1;
+            background: var(--primary);
+            opacity: 0.3;
+        }
+
+        .flow-step:last-child .flow-step-line {
+            display: none;
+        }
+
+        .flow-step-content {
+            flex-grow: 1;
+            background: var(--bg-card);
+            border-radius: 12px;
+            padding: 20px;
+            margin-left: 15px;
+            margin-bottom: 15px;
+            border: 1px solid var(--border);
+        }
+
+        .flow-step-content h4 {
+            margin-bottom: 8px;
+            color: var(--primary);
+        }
+
+        .flow-step-content p {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .flow-step-content code {
+            background: var(--bg-dark);
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            color: var(--secondary);
+        }
+
+        /* Memory Architecture */
+        .memory-layers {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .memory-layer {
+            background: var(--bg-card);
+            border-radius: 16px;
+            padding: 30px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .memory-layer::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+        }
+
+        .memory-layer.layer-1::before { background: var(--gradient-1); }
+        .memory-layer.layer-2::before { background: var(--gradient-2); }
+        .memory-layer.layer-3::before { background: var(--gradient-3); }
+
+        .memory-layer h3 {
+            font-size: 1.3rem;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .memory-layer h3 span {
+            font-size: 0.75rem;
+            background: var(--bg-dark);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-weight: normal;
+            color: var(--text-secondary);
+        }
+
+        .memory-features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .memory-feature {
+            background: var(--bg-dark);
+            padding: 15px;
+            border-radius: 10px;
+        }
+
+        .memory-feature strong {
+            display: block;
+            margin-bottom: 5px;
+            color: var(--secondary);
+        }
+
+        .memory-feature span {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        /* Code Block */
+        .code-block {
+            background: var(--bg-dark);
+            border-radius: 12px;
+            padding: 20px;
+            margin: 20px 0;
+            overflow-x: auto;
+            border: 1px solid var(--border);
+        }
+
+        .code-block pre {
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 0.9rem;
+            line-height: 1.6;
+            color: var(--text-secondary);
+        }
+
+        .code-block .keyword { color: #c678dd; }
+        .code-block .string { color: #98c379; }
+        .code-block .comment { color: #5c6370; }
+        .code-block .function { color: #61afef; }
+
+        /* Folder Structure */
+        .folder-structure {
+            background: var(--bg-card);
+            border-radius: 16px;
+            padding: 30px;
+            font-family: 'Consolas', monospace;
+            font-size: 0.9rem;
+            line-height: 1.8;
+            border: 1px solid var(--border);
+        }
+
+        .folder { color: #61afef; }
+        .file { color: var(--text-secondary); }
+        .comment { color: #5c6370; font-style: italic; }
+
+        /* Summary Cards */
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .summary-card {
+            background: var(--bg-card);
+            border-radius: 16px;
+            padding: 25px;
+            text-align: center;
+            border: 1px solid var(--border);
+        }
+
+        .summary-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: var(--gradient-1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .summary-label {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-top: 5px;
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 40px;
+            margin-top: 60px;
+            border-top: 1px solid var(--border);
+            color: var(--text-secondary);
+        }
+
+        .footer a {
+            color: var(--primary);
+            text-decoration: none;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .flow-row {
+                flex-direction: column;
+            }
+
+            .flow-arrow {
+                transform: rotate(90deg);
+            }
+
+            .layer {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .layer-files {
+                margin: 15px 0 0 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <h1>🤖 Code Agent Architecture</h1>
+            <p class="subtitle">Agentic Development Environment (ADE)</p>
+            <div class="badge">Python 3.11+ • Agno Framework • ~25,000 LOC</div>
+        </header>
+
+        <!-- Section 1: High Level Overview -->
+        <section class="section">
+            <div class="section-header">
+                <div class="section-number">1</div>
+                <h2 class="section-title">High-Level Architecture Overview</h2>
+            </div>
+
+            <div class="flow-container">
+                <div class="flow-row">
+                    <div class="flow-box primary">
+                        <h3>👤 User</h3>
+                        <p>CLI / API / WebSocket</p>
+                    </div>
+                    <div class="flow-arrow">→</div>
+                    <div class="flow-box">
+                        <h3>📥 Input Layer</h3>
+                        <p>CLI Parser / REST API</p>
+                    </div>
+                    <div class="flow-arrow">→</div>
+                    <div class="flow-box secondary">
+                        <h3>🧠 Agent Layer</h3>
+                        <p>CodingAgent (Orchestrator)</p>
+                    </div>
+                </div>
+
+                <div class="flow-arrow-down">↓</div>
+
+                <div class="flow-row">
+                    <div class="flow-box">
+                        <h3>🔧 Tool System</h3>
+                        <p>15+ Specialized Tools</p>
+                    </div>
+                    <div class="flow-arrow">↔</div>
+                    <div class="flow-box accent">
+                        <h3>🤖 LLM Provider</h3>
+                        <p>Claude / Ollama</p>
+                    </div>
+                    <div class="flow-arrow">↔</div>
+                    <div class="flow-box">
+                        <h3>💾 Memory System</h3>
+                        <p>Session + Long-term</p>
+                    </div>
+                </div>
+
+                <div class="flow-arrow-down">↓</div>
+
+                <div class="flow-row">
+                    <div class="flow-box">
+                        <h3>📁 File System</h3>
+                        <p>Working Directory</p>
+                    </div>
+                    <div class="flow-arrow">↔</div>
+                    <div class="flow-box">
+                        <h3>💻 Terminal</h3>
+                        <p>Command Execution</p>
+                    </div>
+                    <div class="flow-arrow">↔</div>
+                    <div class="flow-box">
+                        <h3>🗄️ Database</h3>
+                        <p>SQLite / PostgreSQL</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 2: Project Structure -->
+        <section class="section">
+            <div class="section-header">
+                <div class="section-number">2</div>
+                <h2 class="section-title">Project Folder Structure</h2>
+            </div>
+
+            <div class="folder-structure">
+<span class="folder">code-agent/</span>
+├── <span class="folder">src/</span>                          <span class="comment"># Main source code (~25,000 LOC)</span>
+│   ├── <span class="folder">agents/</span>                   <span class="comment"># Agent implementations</span>
+│   │   ├── <span class="file">coding_agent.py</span>       <span class="comment"># Master agent (orchestrator)</span>
+│   │   └── <span class="file">specialized.py</span>        <span class="comment"># Sub-agents (reviewer, debugger, etc.)</span>
+│   ├── <span class="folder">api/</span>                      <span class="comment"># FastAPI server & REST endpoints</span>
+│   ├── <span class="folder">config/</span>                   <span class="comment"># Settings & configuration</span>
+│   ├── <span class="folder">core/</span>                     <span class="comment"># Core utilities (25+ modules)</span>
+│   │   ├── <span class="file">llm.py</span>                <span class="comment"># LLM provider abstraction</span>
+│   │   ├── <span class="file">memory.py</span>             <span class="comment"># Long-term memory system</span>
+│   │   ├── <span class="file">smart_context.py</span>      <span class="comment"># Context window management</span>
+│   │   ├── <span class="file">checkpoint.py</span>         <span class="comment"># State snapshots</span>
+│   │   └── <span class="file">undo_redo.py</span>          <span class="comment"># Operation history</span>
+│   ├── <span class="folder">memory/</span>                   <span class="comment"># Session management</span>
+│   ├── <span class="folder">context/</span>                  <span class="comment"># Context attachment system</span>
+│   ├── <span class="folder">planning/</span>                 <span class="comment"># Multi-step task planning</span>
+│   ├── <span class="folder">tools/</span>                    <span class="comment"># Tool implementations (10 files)</span>
+│   │   ├── <span class="file">terminal.py</span>           <span class="comment"># Shell commands</span>
+│   │   ├── <span class="file">file_tools.py</span>         <span class="comment"># File operations</span>
+│   │   ├── <span class="file">search.py</span>             <span class="comment"># Code search</span>
+│   │   └── <span class="file">git_tools.py</span>          <span class="comment"># Git operations</span>
+│   ├── <span class="folder">workflows/</span>                <span class="comment"># Task & workflow management</span>
+│   ├── <span class="folder">rules/</span>                    <span class="comment"># Agent rules (AGENT.md)</span>
+│   └── <span class="file">cli.py</span>                    <span class="comment"># CLI interface (50+ commands)</span>
+├── <span class="folder">docs/</span>                         <span class="comment"># Documentation</span>
+├── <span class="folder">data/</span>                         <span class="comment"># Runtime data</span>
+│   ├── <span class="file">agent_storage.db</span>         <span class="comment"># SQLite session storage</span>
+│   ├── <span class="folder">memory/</span>                   <span class="comment"># Long-term memory JSON</span>
+│   ├── <span class="folder">checkpoints/</span>              <span class="comment"># State snapshots</span>
+│   └── <span class="folder">plans/</span>                    <span class="comment"># Saved plans</span>
+├── <span class="file">main.py</span>                       <span class="comment"># Entry point</span>
+└── <span class="file">pyproject.toml</span>                <span class="comment"># Dependencies</span>
+            </div>
+        </section>
+
+        <!-- Section 3: Layer Architecture -->
+        <section class="section">
+            <div class="section-header">
+                <div class="section-number">3</div>
+                <h2 class="section-title">Layered Architecture</h2>
+            </div>
+
+            <div class="layer-stack">
+                <div class="layer">
+                    <div class="layer-icon">🎨</div>
+                    <div class="layer-content">
+                        <h3>Presentation Layer</h3>
+                        <p>CLI Interface, Rich Terminal UI, FastAPI Server, WebSocket Handler</p>
+                    </div>
+                    <div class="layer-files">cli.py, api/</div>
+                </div>
+                <div class="layer">
+                    <div class="layer-icon">🧠</div>
+                    <div class="layer-content">
+                        <h3>Agent Layer (Orchestration)</h3>
+                        <p>CodingAgent, Specialized Agents (Reviewer, Debugger, Tester, etc.)</p>
+                    </div>
+                    <div class="layer-files">agents/</div>
+                </div>
+                <div class="layer">
+                    <div class="layer-icon">🔌</div>
+                    <div class="layer-content">
+                        <h3>LLM Integration Layer</h3>
+                        <p>Provider Abstraction, Model Configuration, Streaming Handler</p>
+                    </div>
+                    <div class="layer-files">core/llm.py</div>
+                </div>
+                <div class="layer">
+                    <div class="layer-icon">🔧</div>
+                    <div class="layer-content">
+                        <h3>Tool Layer</h3>
+                        <p>Terminal, File, Search, Git, Build, Test, Workflow Tools</p>
+                    </div>
+                    <div class="layer-files">tools/</div>
+                </div>
+                <div class="layer">
+                    <div class="layer-icon">💾</div>
+                    <div class="layer-content">
+                        <h3>Persistence Layer</h3>
+                        <p>SQLite Database, JSON Storage, File System, Memory Entries</p>
+                    </div>
+                    <div class="layer-files">memory/, data/</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 4: Core Components -->
+        <section class="section">
+            <div class="section-header">
+                <div class="section-number">4</div>
+                <h2 class="section-title">Core Components</h2>
+            </div>
+
+            <div class="component-grid">
+                <div class="component-card">
+                    <div class="component-header">
+                        <div class="component-icon">🧠</div>
+                        <h3>CodingAgent</h3>
+                    </div>
+                    <p>Master orchestrator that coordinates all operations. Receives user input, invokes LLM, executes tools, and streams responses.</p>
+                    <div class="component-tech">
+                        <span class="tech-tag">Agno Framework</span>
+                        <span class="tech-tag">Streaming</span>
+                        <span class="tech-tag">Tool Binding</span>
+                    </div>
+                </div>
+
+                <div class="component-card">
+                    <div class="component-header">
+                        <div class="component-icon">🤖</div>
+                        <h3>LLM Provider</h3>
+                    </div>
+                    <p>Abstraction layer supporting multiple LLM backends. Switches between cloud (Claude) and local (Ollama) models.</p>
+                    <div class="component-tech">
+                        <span class="tech-tag">Claude API</span>
+                        <span class="tech-tag">Ollama</span>
+                        <span class="tech-tag">Switchable</span>
+                    </div>
+                </div>
+
+                <div class="component-card">
+                    <div class="component-header">
+                        <div class="component-icon">🔧</div>
+                        <h3>Tool System</h3>
+                    </div>
+                    <p>15+ tools organized by category. Uses @tool decorator pattern for LLM function calling integration.</p>
+                    <div class="component-tech">
+                        <span class="tech-tag">@tool Decorator</span>
+                        <span class="tech-tag">Function Calling</span>
+                    </div>
+                </div>
+
+                <div class="component-card">
+                    <div class="component-header">
+                        <div class="component-icon">💾</div>
+                        <h3>Memory System</h3>
+                    </div>
+                    <p>Multi-layer memory with session storage, long-term memory, and smart context window for token management.</p>
+                    <div class="component-tech">
+                        <span class="tech-tag">SQLite</span>
+                        <span class="tech-tag">JSON</span>
+                        <span class="tech-tag">Semantic Search</span>
+                    </div>
+                </div>
+
+                <div class="component-card">
+                    <div class="component-header">
+                        <div class="component-icon">📋</div>
+                        <h3>Planning System</h3>
+                    </div>
+                    <p>Multi-step task planning with approval workflow. Breaks complex tasks into executable steps.</p>
+                    <div class="component-tech">
+                        <span class="tech-tag">Plan States</span>
+                        <span class="tech-tag">Step Execution</span>
+                    </div>
+                </div>
+
+                <div class="component-card">
+                    <div class="component-header">
+                        <div class="component-icon">🔄</div>
+                        <h3>Checkpoint System</h3>
+                    </div>
+                    <p>Full file snapshots before risky operations. Enables undo/redo and state restoration.</p>
+                    <div class="component-tech">
+                        <span class="tech-tag">Snapshots</span>
+                        <span class="tech-tag">Undo/Redo</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 5: Request Flow -->
+        <section class="section">
+            <div class="section-header">
+                <div class="section-number">5</div>
+                <h2 class="section-title">Request Processing Flow</h2>
+            </div>
+
+            <div class="request-flow">
+                <div class="flow-step">
+                    <div class="flow-step-number">
+                        <div class="flow-step-circle">1</div>
+                        <div class="flow-step-line"></div>
+                    </div>
+                    <div class="flow-step-content">
+                        <h4>User Input</h4>
+                        <p>User enters command via CLI <code>get_multiline_input()</code> or sends request to API endpoint <code>POST /chat</code></p>
+                    </div>
+                </div>
+
+                <div class="flow-step">
+                    <div class="flow-step-number">
+                        <div class="flow-step-circle">2</div>
+                        <div class="flow-step-line"></div>
+                    </div>
+                    <div class="flow-step-content">
+                        <h4>Preprocessing</h4>
+                        <p>Parse slash commands vs natural language. Load smart context window. Retrieve relevant memory entries.</p>
+                    </div>
+                </div>
+
+                <div class="flow-step">
+                    <div class="flow-step-number">
+                        <div class="flow-step-circle">3</div>
+                        <div class="flow-step-line"></div>
+                    </div>
+                    <div class="flow-step-content">
+                        <h4>Agent Orchestration</h4>
+                        <p>CodingAgent invokes <code>Agent.run(message, stream=True)</code>. Agno framework manages conversation and tool detection.</p>
+                    </div>
+                </div>
+
+                <div class="flow-step">
+                    <div class="flow-step-number">
+                        <div class="flow-step-circle">4</div>
+                        <div class="flow-step-line"></div>
+                    </div>
+                    <div class="flow-step-content">
+                        <h4>LLM Processing</h4>
+                        <p>LLM (Claude/Ollama) processes the request. Generates response with potential tool calls using function calling.</p>
+                    </div>
+                </div>
+
+                <div class="flow-step">
+                    <div class="flow-step-number">
+                        <div class="flow-step-circle">5</div>
+                        <div class="flow-step-line"></div>
+                    </div>
+                    <div class="flow-step-content">
+                        <h4>Tool Execution</h4>
+                        <p>Tool router selects implementation. Executes in sandboxed environment. Logs with <code>tool_logger</code>. Returns structured result.</p>
+                    </div>
+                </div>
+
+                <div class="flow-step">
+                    <div class="flow-step-number">
+                        <div class="flow-step-circle">6</div>
+                        <div class="flow-step-line"></div>
+                    </div>
+                    <div class="flow-step-content">
+                        <h4>Response Generation</h4>
+                        <p>Tool results fed back to LLM. Generates human-readable response. Streams chunks to client in real-time.</p>
+                    </div>
+                </div>
+
+                <div class="flow-step">
+                    <div class="flow-step-number">
+                        <div class="flow-step-circle">7</div>
+                        <div class="flow-step-line"></div>
+                    </div>
+                    <div class="flow-step-content">
+                        <h4>Memory Recording</h4>
+                        <p>Session stored to SQLite. Memory entry created. Checkpoint auto-saved. Undo history updated.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 6: Tool System -->
+        <section class="section">
+            <div class="section-header">
+                <div class="section-number">6</div>
+                <h2 class="section-title">Tool System Architecture</h2>
+            </div>
+
+            <div class="tool-category">
+                <h3>🖥️ Terminal Tools <span>4 tools</span></h3>
+                <div class="tool-list">
+                    <div class="tool-item">run_terminal_command()</div>
+                    <div class="tool-item">change_directory()</div>
+                    <div class="tool-item">get_current_directory()</div>
+                    <div class="tool-item">list_directory()</div>
+                </div>
+            </div>
+
+            <div class="tool-category">
+                <h3>📁 File Tools <span>7 tools</span></h3>
+                <div class="tool-list">
+                    <div class="tool-item">read_file()</div>
+                    <div class="tool-item">write_file()</div>
+                    <div class="tool-item">edit_file()</div>
+                    <div class="tool-item">create_file()</div>
+                    <div class="tool-item">delete_file()</div>
+                    <div class="tool-item">move_file()</div>
+                    <div class="tool-item">copy_file()</div>
+                </div>
+            </div>
+
+            <div class="tool-category">
+                <h3>🔍 Search Tools <span>4 tools</span></h3>
+                <div class="tool-list">
+                    <div class="tool-item">search_files()</div>
+                    <div class="tool-item">find_files()</div>
+                    <div class="tool-item">get_file_structure()</div>
+                    <div class="tool-item">get_file_info()</div>
+                </div>
+            </div>
+
+            <div class="tool-category">
+                <h3>📊 Git Tools <span>6+ tools</span></h3>
+                <div class="tool-list">
+                    <div class="tool-item">git_status()</div>
+                    <div class="tool-item">git_diff()</div>
+                    <div class="tool-item">git_add()</div>
+                    <div class="tool-item">git_commit()</div>
+                    <div class="tool-item">git_branch()</div>
+                    <div class="tool-item">git_push()</div>
+                </div>
+            </div>
+
+            <div class="tool-category">
+                <h3>🔨 Build & Test Tools <span>5 tools</span></h3>
+                <div class="tool-list">
+                    <div class="tool-item">detect_project()</div>
+                    <div class="tool-item">build_project()</div>
+                    <div class="tool-item">test_project()</div>
+                    <div class="tool-item">build_and_fix()</div>
+                    <div class="tool-item">lint_project()</div>
+                </div>
+            </div>
+
+            <div class="tool-category">
+                <h3>🧩 Specialized Tools <span>5 tools</span></h3>
+                <div class="tool-list">
+                    <div class="tool-item">code_review()</div>
+                    <div class="tool-item">debug_help()</div>
+                    <div class="tool-item">suggest_refactoring()</div>
+                    <div class="tool-item">generate_tests()</div>
+                    <div class="tool-item">generate_docs()</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 7: Memory Architecture -->
+        <section class="section">
+            <div class="section-header">
+                <div class="section-number">7</div>
+                <h2 class="section-title">Memory Architecture</h2>
+            </div>
+
+            <div class="memory-layers">
+                <div class="memory-layer layer-1">
+                    <h3>Layer 1: Session Memory <span>In-Memory + SQLite</span></h3>
+                    <p>Per-conversation message storage. Active during session, persisted via Agno to SQLite.</p>
+                    <div class="memory-features">
+                        <div class="memory-feature">
+                            <strong>Message</strong>
+                            <span>Role, content, timestamp</span>
+                        </div>
+                        <div class="memory-feature">
+                            <strong>Conversation</strong>
+                            <span>Messages, metadata</span>
+                        </div>
+                        <div class="memory-feature">
+                            <strong>Session</strong>
+                            <span>User context, preferences</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="memory-layer layer-2">
+                    <h3>Layer 2: Long-Term Memory <span>JSON Files</span></h3>
+                    <p>Persistent memory entries with semantic search. Isolated per project using MD5 hash.</p>
+                    <div class="memory-features">
+                        <div class="memory-feature">
+                            <strong>Types</strong>
+                            <span>conversation, decision, code_change, error, solution</span>
+                        </div>
+                        <div class="memory-feature">
+                            <strong>Importance</strong>
+                            <span>Scoring 1-5 for relevance</span>
+                        </div>
+                        <div class="memory-feature">
+                            <strong>Tags</strong>
+                            <span>Categorization system</span>
+                        </div>
+                        <div class="memory-feature">
+                            <strong>Summaries</strong>
+                            <span>Conversation summaries</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="memory-layer layer-3">
+                    <h3>Layer 3: Smart Context Window <span>Token Management</span></h3>
+                    <p>Intelligent file inclusion based on priority and token budget. Prevents context overflow.</p>
+                    <div class="memory-features">
+                        <div class="memory-feature">
+                            <strong>File Priority</strong>
+                            <span>Extension-based scoring (0.0-1.0)</span>
+                        </div>
+                        <div class="memory-feature">
+                            <strong>Token Budget</strong>
+                            <span>Dynamic limit management</span>
+                        </div>
+                        <div class="memory-feature">
+                            <strong>Important Files</strong>
+                            <span>package.json, pyproject.toml auto-included</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 8: LLM Integration -->
+        <section class="section">
+            <div class="section-header">
+                <div class="section-number">8</div>
+                <h2 class="section-title">LLM Integration</h2>
+            </div>
+
+            <div class="component-grid">
+                <div class="component-card">
+                    <div class="component-header">
+                        <div class="component-icon" style="background: linear-gradient(135deg, #f97316 0%, #ef4444 100%);">☁️</div>
+                        <h3>Claude (Anthropic)</h3>
+                    </div>
+                    <p>Cloud-based model. Primary choice for production use. Requires API key.</p>
+                    <div class="code-block">
+<pre>Claude(
+    id="claude-sonnet-4-5-20250929",
+    api_key=settings.anthropic_api_key,
+    temperature=0.2,
+    max_tokens=10000
+)</pre>
+                    </div>
+                </div>
+
+                <div class="component-card">
+                    <div class="component-header">
+                        <div class="component-icon" style="background: linear-gradient(135deg, #22c55e 0%, #10b981 100%);">🏠</div>
+                        <h3>Ollama (Local)</h3>
+                    </div>
+                    <p>Local model hosting. No data leaves your machine. Supports multiple models.</p>
+                    <div class="code-block">
+<pre>Ollama(
+    id="qwen2.5-coder:7b",
+    host="http://localhost:11434",
+    temperature=0.1,
+    num_ctx=32768
+)</pre>
+                    </div>
+                </div>
+            </div>
+
+            <div class="code-block" style="margin-top: 30px;">
+                <h4 style="margin-bottom: 15px; color: var(--primary);">Provider Selection Flow</h4>
+<pre>
+<span class="keyword">def</span> <span class="function">get_model</span>():
+    <span class="keyword">if</span> settings.llm_provider == <span class="string">"anthropic"</span>:
+        <span class="keyword">return</span> Claude(id=settings.anthropic_model, ...)
+    <span class="keyword">else</span>:
+        <span class="keyword">return</span> Ollama(id=settings.ollama_model, ...)
+</pre>
+            </div>
+        </section>
+
+        <!-- Section 9: Summary Stats -->
+        <section class="section">
+            <div class="section-header">
+                <div class="section-number">9</div>
+                <h2 class="section-title">Project Summary</h2>
+            </div>
+
+            <div class="summary-grid">
+                <div class="summary-card">
+                    <div class="summary-number">~25K</div>
+                    <div class="summary-label">Lines of Code</div>
+                </div>
+                <div class="summary-card">
+                    <div class="summary-number">69</div>
+                    <div class="summary-label">Python Files</div>
+                </div>
+                <div class="summary-card">
+                    <div class="summary-number">15+</div>
+                    <div class="summary-label">Tools</div>
+                </div>
+                <div class="summary-card">
+                    <div class="summary-number">50+</div>
+                    <div class="summary-label">CLI Commands</div>
+                </div>
+                <div class="summary-card">
+                    <div class="summary-number">6</div>
+                    <div class="summary-label">Specialized Agents</div>
+                </div>
+                <div class="summary-card">
+                    <div class="summary-number">3</div>
+                    <div class="summary-label">Memory Layers</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>Code Agent Architecture Documentation</p>
+            <p style="margin-top: 10px;">Built with Python, Agno Framework, and ❤️</p>
+        </footer>
+    </div>
+</body>
+</html>

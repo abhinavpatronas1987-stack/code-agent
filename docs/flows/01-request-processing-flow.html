@@ -1,0 +1,780 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Request Processing Flow - Code Agent</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+        :root {
+            --primary: #6366f1;
+            --primary-glow: rgba(99, 102, 241, 0.4);
+            --secondary: #22d3ee;
+            --accent: #f472b6;
+            --success: #34d399;
+            --warning: #fbbf24;
+            --bg-dark: #030712;
+            --bg-card: rgba(15, 23, 42, 0.8);
+            --bg-glass: rgba(255, 255, 255, 0.03);
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --border: rgba(148, 163, 184, 0.1);
+            --gradient-1: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #a855f7 100%);
+            --gradient-2: linear-gradient(135deg, #22d3ee 0%, #2dd4bf 100%);
+            --gradient-3: linear-gradient(135deg, #f472b6 0%, #fb7185 100%);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', system-ui, sans-serif;
+            background: var(--bg-dark);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Animated Background */
+        .bg-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+        }
+
+        .bg-animation::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background:
+                radial-gradient(circle at 20% 80%, rgba(99, 102, 241, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(139, 92, 246, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(34, 211, 238, 0.08) 0%, transparent 40%);
+            animation: bgRotate 30s linear infinite;
+        }
+
+        @keyframes bgRotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            position: relative;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            margin-bottom: 60px;
+            position: relative;
+        }
+
+        .header-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--bg-glass);
+            border: 1px solid var(--border);
+            padding: 8px 20px;
+            border-radius: 50px;
+            font-size: 0.85rem;
+            color: var(--secondary);
+            margin-bottom: 20px;
+            backdrop-filter: blur(10px);
+        }
+
+        .header-badge::before {
+            content: '';
+            width: 8px;
+            height: 8px;
+            background: var(--secondary);
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(1.2); }
+        }
+
+        .header h1 {
+            font-size: 3.5rem;
+            font-weight: 800;
+            background: var(--gradient-1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 15px;
+            letter-spacing: -0.02em;
+        }
+
+        .header p {
+            font-size: 1.25rem;
+            color: var(--text-secondary);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* Flow Container */
+        .flow-container {
+            position: relative;
+            padding: 40px 0;
+        }
+
+        /* Central Line */
+        .flow-line {
+            position: absolute;
+            left: 50%;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background: linear-gradient(to bottom,
+                transparent,
+                var(--primary) 10%,
+                var(--primary) 90%,
+                transparent
+            );
+            transform: translateX(-50%);
+            border-radius: 2px;
+        }
+
+        .flow-line::before {
+            content: '';
+            position: absolute;
+            left: 50%;
+            top: 0;
+            bottom: 0;
+            width: 20px;
+            transform: translateX(-50%);
+            background: linear-gradient(to bottom,
+                transparent,
+                var(--primary-glow) 10%,
+                var(--primary-glow) 90%,
+                transparent
+            );
+            filter: blur(10px);
+        }
+
+        /* Flow Step */
+        .flow-step {
+            display: flex;
+            align-items: center;
+            margin-bottom: 30px;
+            position: relative;
+        }
+
+        .flow-step:nth-child(odd) {
+            flex-direction: row;
+        }
+
+        .flow-step:nth-child(even) {
+            flex-direction: row-reverse;
+        }
+
+        .flow-step:nth-child(odd) .step-content {
+            padding-right: 80px;
+            text-align: right;
+        }
+
+        .flow-step:nth-child(even) .step-content {
+            padding-left: 80px;
+            text-align: left;
+        }
+
+        .step-content {
+            flex: 1;
+        }
+
+        /* Step Number */
+        .step-number {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 60px;
+            background: var(--bg-dark);
+            border: 3px solid var(--primary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary);
+            z-index: 10;
+            box-shadow: 0 0 30px var(--primary-glow);
+        }
+
+        .flow-step:hover .step-number {
+            background: var(--gradient-1);
+            color: white;
+            border-color: transparent;
+            transform: translateX(-50%) scale(1.1);
+            transition: all 0.3s ease;
+        }
+
+        /* Step Card */
+        .step-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 30px;
+            backdrop-filter: blur(20px);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .step-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: var(--gradient-1);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .step-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--primary);
+            box-shadow:
+                0 20px 40px rgba(0, 0, 0, 0.3),
+                0 0 60px var(--primary-glow);
+        }
+
+        .step-card:hover::before {
+            opacity: 1;
+        }
+
+        .step-icon {
+            width: 50px;
+            height: 50px;
+            background: var(--bg-glass);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+        }
+
+        .flow-step:nth-child(odd) .step-icon {
+            margin-left: auto;
+        }
+
+        .step-card h3 {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            color: var(--text-primary);
+        }
+
+        .step-card p {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+
+        /* Code Snippet */
+        .code-snippet {
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 15px;
+            font-family: 'JetBrains Mono', 'Fira Code', monospace;
+            font-size: 0.8rem;
+            color: var(--secondary);
+            overflow-x: auto;
+        }
+
+        .code-snippet code {
+            white-space: pre;
+        }
+
+        /* Tags */
+        .step-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 15px;
+        }
+
+        .flow-step:nth-child(odd) .step-tags {
+            justify-content: flex-end;
+        }
+
+        .tag {
+            background: var(--bg-glass);
+            border: 1px solid var(--border);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+
+        .tag.primary { border-color: var(--primary); color: var(--primary); }
+        .tag.secondary { border-color: var(--secondary); color: var(--secondary); }
+        .tag.accent { border-color: var(--accent); color: var(--accent); }
+
+        /* Detail Section */
+        .detail-section {
+            margin-top: 80px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+        }
+
+        .detail-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 35px;
+            backdrop-filter: blur(20px);
+            transition: all 0.3s ease;
+        }
+
+        .detail-card:hover {
+            border-color: var(--primary);
+            transform: translateY(-5px);
+        }
+
+        .detail-card h3 {
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .detail-card h3 span {
+            width: 40px;
+            height: 40px;
+            background: var(--gradient-1);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+        }
+
+        .detail-list {
+            list-style: none;
+        }
+
+        .detail-list li {
+            padding: 12px 0;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .detail-list li:last-child {
+            border-bottom: none;
+        }
+
+        .detail-list li::before {
+            content: '▸';
+            color: var(--primary);
+            font-weight: bold;
+        }
+
+        /* Summary Box */
+        .summary-box {
+            margin-top: 60px;
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%);
+            border: 1px solid var(--primary);
+            border-radius: 24px;
+            padding: 40px;
+            text-align: center;
+        }
+
+        .summary-box h2 {
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+            background: var(--gradient-1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .summary-flow {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        .summary-item {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            padding: 15px 25px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .summary-item span {
+            font-size: 1.2rem;
+        }
+
+        .summary-arrow {
+            color: var(--primary);
+            font-size: 1.5rem;
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            margin-top: 80px;
+            padding: 30px;
+            border-top: 1px solid var(--border);
+            color: var(--text-secondary);
+        }
+
+        .footer a {
+            color: var(--primary);
+            text-decoration: none;
+        }
+
+        /* Responsive */
+        @media (max-width: 900px) {
+            .header h1 {
+                font-size: 2.5rem;
+            }
+
+            .flow-step,
+            .flow-step:nth-child(even) {
+                flex-direction: column;
+            }
+
+            .flow-step:nth-child(odd) .step-content,
+            .flow-step:nth-child(even) .step-content {
+                padding: 80px 0 0 0;
+                text-align: center;
+            }
+
+            .flow-step:nth-child(odd) .step-icon,
+            .flow-step:nth-child(even) .step-icon {
+                margin: 0 auto 15px;
+            }
+
+            .flow-step:nth-child(odd) .step-tags,
+            .flow-step:nth-child(even) .step-tags {
+                justify-content: center;
+            }
+
+            .step-number {
+                top: 0;
+            }
+
+            .flow-line {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-animation"></div>
+
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-badge">FLOW ARCHITECTURE</div>
+            <h1>Request Processing Flow</h1>
+            <p>Complete journey of a user request from input to response in Code Agent</p>
+        </header>
+
+        <!-- Flow Container -->
+        <div class="flow-container">
+            <div class="flow-line"></div>
+
+            <!-- Step 1 -->
+            <div class="flow-step">
+                <div class="step-content">
+                    <div class="step-card">
+                        <div class="step-icon">👤</div>
+                        <h3>User Input</h3>
+                        <p>User enters a message through the CLI interface or sends a request to the REST API. The input can be natural language, slash commands, or file attachments.</p>
+                        <div class="code-snippet">
+                            <code>CLI: get_multiline_input()
+API: POST /chat {"message": "Fix the bug in auth.py"}</code>
+                        </div>
+                        <div class="step-tags">
+                            <span class="tag primary">Entry Point</span>
+                            <span class="tag">CLI</span>
+                            <span class="tag">REST API</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="step-number">1</div>
+                <div class="step-content"></div>
+            </div>
+
+            <!-- Step 2 -->
+            <div class="flow-step">
+                <div class="step-content"></div>
+                <div class="step-number">2</div>
+                <div class="step-content">
+                    <div class="step-card">
+                        <div class="step-icon">🔍</div>
+                        <h3>Input Parsing</h3>
+                        <p>The input is parsed to detect slash commands (/git, /test) vs natural language. Commands are routed directly to handlers, while natural language goes to the agent.</p>
+                        <div class="code-snippet">
+                            <code>if message.startswith("/"):
+    handle_command(message)
+else:
+    agent.run(message)</code>
+                        </div>
+                        <div class="step-tags">
+                            <span class="tag secondary">Parser</span>
+                            <span class="tag">Command Router</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 3 -->
+            <div class="flow-step">
+                <div class="step-content">
+                    <div class="step-card">
+                        <div class="step-icon">📦</div>
+                        <h3>Context Loading</h3>
+                        <p>Smart Context Window loads relevant files, memory entries, and attachments. Prioritizes by file type and importance while staying within token budget.</p>
+                        <div class="code-snippet">
+                            <code>context = SmartContextWindow(budget=32000)
+context.add_relevant_files(query, workspace)
+context.add_memory_entries(recall(query))
+context.add_attachments(session.attachments)</code>
+                        </div>
+                        <div class="step-tags">
+                            <span class="tag accent">RAG</span>
+                            <span class="tag">Token Budget</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="step-number">3</div>
+                <div class="step-content"></div>
+            </div>
+
+            <!-- Step 4 -->
+            <div class="flow-step">
+                <div class="step-content"></div>
+                <div class="step-number">4</div>
+                <div class="step-content">
+                    <div class="step-card">
+                        <div class="step-icon">🧠</div>
+                        <h3>Agent Orchestration</h3>
+                        <p>CodingAgent receives the enriched request. Agno framework manages conversation state, system prompt injection, and prepares the LLM call.</p>
+                        <div class="code-snippet">
+                            <code>response = agent.run(
+    message=user_input,
+    context=loaded_context,
+    stream=True
+)</code>
+                        </div>
+                        <div class="step-tags">
+                            <span class="tag primary">Agno Framework</span>
+                            <span class="tag">Orchestrator</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 5 -->
+            <div class="flow-step">
+                <div class="step-content">
+                    <div class="step-card">
+                        <div class="step-icon">🤖</div>
+                        <h3>LLM Processing</h3>
+                        <p>The LLM (Claude or Ollama) processes the request. It generates a response which may include tool calls (function calling) for actions like reading files.</p>
+                        <div class="code-snippet">
+                            <code>LLM Output:
+{
+  "content": "Let me read the file first.",
+  "tool_calls": [{
+    "name": "read_file",
+    "arguments": {"path": "auth.py"}
+  }]
+}</code>
+                        </div>
+                        <div class="step-tags">
+                            <span class="tag secondary">Claude</span>
+                            <span class="tag">Ollama</span>
+                            <span class="tag">Function Calling</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="step-number">5</div>
+                <div class="step-content"></div>
+            </div>
+
+            <!-- Step 6 -->
+            <div class="flow-step">
+                <div class="step-content"></div>
+                <div class="step-number">6</div>
+                <div class="step-content">
+                    <div class="step-card">
+                        <div class="step-icon">🔧</div>
+                        <h3>Tool Execution</h3>
+                        <p>Detected tool calls are routed to their implementations. Tools execute in a sandboxed environment with logging. Results are captured and returned.</p>
+                        <div class="code-snippet">
+                            <code>for tool_call in response.tool_calls:
+    result = execute_tool(
+        name=tool_call.name,
+        args=tool_call.arguments
+    )
+    log_tool_execution(tool_call, result)
+    feed_result_to_llm(result)</code>
+                        </div>
+                        <div class="step-tags">
+                            <span class="tag accent">Tool Router</span>
+                            <span class="tag">Sandbox</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 7 -->
+            <div class="flow-step">
+                <div class="step-content">
+                    <div class="step-card">
+                        <div class="step-icon">📡</div>
+                        <h3>Response Streaming</h3>
+                        <p>The LLM generates the final response incorporating tool results. Response is streamed token-by-token to the user for immediate feedback.</p>
+                        <div class="code-snippet">
+                            <code>for chunk in response.stream():
+    if chunk.content:
+        display(chunk.content)  # ~100ms first token
+    if chunk.tool_status:
+        show_tool_progress(chunk.tool_status)</code>
+                        </div>
+                        <div class="step-tags">
+                            <span class="tag primary">Streaming</span>
+                            <span class="tag">Real-time</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="step-number">7</div>
+                <div class="step-content"></div>
+            </div>
+
+            <!-- Step 8 -->
+            <div class="flow-step">
+                <div class="step-content"></div>
+                <div class="step-number">8</div>
+                <div class="step-content">
+                    <div class="step-card">
+                        <div class="step-icon">💾</div>
+                        <h3>Memory Recording</h3>
+                        <p>After completion, the interaction is recorded. Session memory updates in SQLite, long-term memory entries are created for important events, and checkpoints are saved.</p>
+                        <div class="code-snippet">
+                            <code>session.add_message(user_input, response)
+memory.record_entry(
+    type="conversation",
+    content=summary,
+    importance=calculate_importance()
+)
+checkpoint.auto_save()</code>
+                        </div>
+                        <div class="step-tags">
+                            <span class="tag secondary">SQLite</span>
+                            <span class="tag">Long-term Memory</span>
+                            <span class="tag">Checkpoint</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Detail Section -->
+        <div class="detail-section">
+            <div class="detail-card">
+                <h3><span>⚡</span> Performance Optimizations</h3>
+                <ul class="detail-list">
+                    <li>Streaming reduces perceived latency to ~100ms</li>
+                    <li>Smart context prevents token overflow</li>
+                    <li>Lazy loading of non-essential components</li>
+                    <li>Caching via @lru_cache for settings</li>
+                    <li>Parallel tool execution where possible</li>
+                </ul>
+            </div>
+
+            <div class="detail-card">
+                <h3><span>🔒</span> Security Checkpoints</h3>
+                <ul class="detail-list">
+                    <li>Working directory scoping enforced</li>
+                    <li>Command timeout (120s default)</li>
+                    <li>Path validation and normalization</li>
+                    <li>Sensitive file pattern detection</li>
+                    <li>Confirmation prompts for destructive ops</li>
+                </ul>
+            </div>
+
+            <div class="detail-card">
+                <h3><span>🔄</span> Error Handling</h3>
+                <ul class="detail-list">
+                    <li>Tool errors captured and fed back to LLM</li>
+                    <li>Retry logic with exponential backoff</li>
+                    <li>Graceful degradation on LLM failure</li>
+                    <li>Checkpoint restoration on critical errors</li>
+                    <li>User notification for recoverable issues</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Summary -->
+        <div class="summary-box">
+            <h2>Complete Flow Summary</h2>
+            <p style="color: var(--text-secondary); margin-bottom: 20px;">The request travels through 8 stages from input to persistent storage</p>
+            <div class="summary-flow">
+                <div class="summary-item"><span>👤</span> User</div>
+                <div class="summary-arrow">→</div>
+                <div class="summary-item"><span>🔍</span> Parse</div>
+                <div class="summary-arrow">→</div>
+                <div class="summary-item"><span>📦</span> Context</div>
+                <div class="summary-arrow">→</div>
+                <div class="summary-item"><span>🧠</span> Agent</div>
+                <div class="summary-arrow">→</div>
+                <div class="summary-item"><span>🤖</span> LLM</div>
+                <div class="summary-arrow">→</div>
+                <div class="summary-item"><span>🔧</span> Tools</div>
+                <div class="summary-arrow">→</div>
+                <div class="summary-item"><span>📡</span> Stream</div>
+                <div class="summary-arrow">→</div>
+                <div class="summary-item"><span>💾</span> Memory</div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>Request Processing Flow • Code Agent Architecture</p>
+            <p style="margin-top: 10px;"><a href="index.html">← Back to Index</a></p>
+        </footer>
+    </div>
+</body>
+</html>

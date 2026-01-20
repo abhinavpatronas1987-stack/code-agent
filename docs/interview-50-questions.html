@@ -1,0 +1,1913 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>55 Interview Questions - Code Agent</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+        :root {
+            --primary: #6366f1;
+            --primary-light: #818cf8;
+            --secondary: #06b6d4;
+            --accent: #f59e0b;
+            --success: #10b981;
+            --danger: #ef4444;
+            --bg-dark: #0f172a;
+            --bg-darker: #020617;
+            --bg-card: rgba(30, 41, 59, 0.8);
+            --bg-glass: rgba(255, 255, 255, 0.03);
+            --text-primary: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --border: rgba(148, 163, 184, 0.1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', system-ui, sans-serif;
+            background: var(--bg-darker);
+            color: var(--text-primary);
+            line-height: 1.7;
+        }
+
+        /* Background */
+        .bg-pattern {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background:
+                radial-gradient(circle at 10% 20%, rgba(99, 102, 241, 0.08) 0%, transparent 40%),
+                radial-gradient(circle at 90% 80%, rgba(6, 182, 212, 0.06) 0%, transparent 40%);
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            padding: 60px 40px;
+            margin-bottom: 40px;
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.2), rgba(6, 182, 212, 0.1));
+            border-radius: 24px;
+            border: 1px solid var(--border);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '🎯';
+            position: absolute;
+            top: 20px;
+            right: 40px;
+            font-size: 5rem;
+            opacity: 0.1;
+        }
+
+        .header h1 {
+            font-size: 3rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #6366f1, #06b6d4);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 15px;
+        }
+
+        .header p {
+            color: var(--text-secondary);
+            font-size: 1.2rem;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .header .stats {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            margin-top: 30px;
+            flex-wrap: wrap;
+        }
+
+        .header .stat {
+            text-align: center;
+        }
+
+        .header .stat-num {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--primary-light);
+        }
+
+        .header .stat-label {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        /* Category Navigation */
+        .category-nav {
+            background: var(--bg-card);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 40px;
+            border: 1px solid var(--border);
+            position: sticky;
+            top: 20px;
+            z-index: 100;
+            backdrop-filter: blur(10px);
+        }
+
+        .category-nav h3 {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .nav-links {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .nav-link {
+            background: var(--bg-glass);
+            border: 1px solid var(--border);
+            padding: 8px 16px;
+            border-radius: 8px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.85rem;
+            transition: all 0.2s ease;
+        }
+
+        .nav-link:hover {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        /* Category Section */
+        .category {
+            margin-bottom: 50px;
+        }
+
+        .category-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid var(--border);
+        }
+
+        .category-icon {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+
+        .category-header h2 {
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .category-header .count {
+            margin-left: auto;
+            background: var(--bg-glass);
+            border: 1px solid var(--border);
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        /* Q&A Item */
+        .qa-item {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            margin-bottom: 20px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .qa-item:hover {
+            border-color: var(--primary);
+            box-shadow: 0 10px 40px rgba(99, 102, 241, 0.1);
+        }
+
+        .question {
+            padding: 25px;
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            cursor: pointer;
+            border-bottom: 1px solid var(--border);
+            background: rgba(99, 102, 241, 0.03);
+        }
+
+        .q-number {
+            width: 35px;
+            height: 35px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.9rem;
+            flex-shrink: 0;
+        }
+
+        .q-text {
+            flex: 1;
+            font-weight: 600;
+            font-size: 1.05rem;
+            line-height: 1.5;
+        }
+
+        .q-difficulty {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            flex-shrink: 0;
+        }
+
+        .q-difficulty.easy {
+            background: rgba(16, 185, 129, 0.2);
+            color: var(--success);
+        }
+
+        .q-difficulty.medium {
+            background: rgba(245, 158, 11, 0.2);
+            color: var(--accent);
+        }
+
+        .q-difficulty.hard {
+            background: rgba(239, 68, 68, 0.2);
+            color: var(--danger);
+        }
+
+        .answer {
+            padding: 25px;
+        }
+
+        .answer-label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--success);
+            font-weight: 600;
+            font-size: 0.9rem;
+            margin-bottom: 15px;
+        }
+
+        .answer-label::before {
+            content: '✓';
+            width: 20px;
+            height: 20px;
+            background: var(--success);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+        }
+
+        .answer-content {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            line-height: 1.8;
+        }
+
+        .answer-content p {
+            margin-bottom: 15px;
+        }
+
+        .answer-content p:last-child {
+            margin-bottom: 0;
+        }
+
+        .answer-content strong {
+            color: var(--text-primary);
+        }
+
+        .answer-content code {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem;
+            color: var(--secondary);
+        }
+
+        .code-block {
+            background: #0d1117;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 15px 0;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem;
+            overflow-x: auto;
+            line-height: 1.6;
+            border: 1px solid var(--border);
+        }
+
+        .code-block .keyword { color: #ff7b72; }
+        .code-block .string { color: #a5d6ff; }
+        .code-block .comment { color: #8b949e; }
+        .code-block .function { color: #d2a8ff; }
+
+        .key-points {
+            background: var(--bg-glass);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 15px;
+        }
+
+        .key-points h4 {
+            font-size: 0.85rem;
+            color: var(--accent);
+            margin-bottom: 10px;
+        }
+
+        .key-points ul {
+            list-style: none;
+            margin: 0;
+        }
+
+        .key-points li {
+            padding: 5px 0;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+        }
+
+        .key-points li::before {
+            content: '▸';
+            color: var(--primary);
+        }
+
+        /* Tips Section */
+        .tips-section {
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.1), rgba(239, 68, 68, 0.05));
+            border: 1px solid var(--accent);
+            border-radius: 20px;
+            padding: 30px;
+            margin-top: 50px;
+        }
+
+        .tips-section h2 {
+            color: var(--accent);
+            margin-bottom: 20px;
+            font-size: 1.4rem;
+        }
+
+        .tips-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .tip-card {
+            background: var(--bg-card);
+            border-radius: 12px;
+            padding: 20px;
+        }
+
+        .tip-card h4 {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+            font-size: 1rem;
+        }
+
+        .tip-card p {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 40px;
+            margin-top: 60px;
+            border-top: 1px solid var(--border);
+            color: var(--text-secondary);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .category-nav {
+                position: static;
+            }
+
+            .question {
+                flex-wrap: wrap;
+            }
+
+            .q-difficulty {
+                order: -1;
+                margin-left: 50px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-pattern"></div>
+
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <h1>55 Interview Questions</h1>
+            <p>Comprehensive Q&A based on your Code Agent implementation - from architecture to AI patterns</p>
+            <div class="stats">
+                <div class="stat">
+                    <div class="stat-num">55</div>
+                    <div class="stat-label">Questions</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-num">10</div>
+                    <div class="stat-label">Categories</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-num">3</div>
+                    <div class="stat-label">Difficulty Levels</div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Category Navigation -->
+        <nav class="category-nav">
+            <h3>Jump to Category</h3>
+            <div class="nav-links">
+                <a href="#architecture" class="nav-link">Architecture</a>
+                <a href="#agent-pattern" class="nav-link">Agent Pattern</a>
+                <a href="#llm" class="nav-link">LLM Integration</a>
+                <a href="#tools" class="nav-link">Tool System</a>
+                <a href="#memory" class="nav-link">Memory</a>
+                <a href="#rag" class="nav-link">RAG</a>
+                <a href="#persistence" class="nav-link">Persistence</a>
+                <a href="#security" class="nav-link">Security</a>
+                <a href="#performance" class="nav-link">Performance</a>
+                <a href="#decisions" class="nav-link">Design Decisions</a>
+            </div>
+        </nav>
+
+        <!-- Category 1: Architecture -->
+        <section id="architecture" class="category">
+            <div class="category-header">
+                <div class="category-icon">🏗️</div>
+                <h2>Architecture & Design</h2>
+                <span class="count">5 questions</span>
+            </div>
+
+            <div class="qa-item">
+                <div class="question">
+                    <div class="q-number">1</div>
+                    <div class="q-text">Can you explain the overall architecture of your Code Agent project?</div>
+                    <span class="q-difficulty medium">Medium</span>
+                </div>
+                <div class="answer">
+                    <div class="answer-label">Sample Answer</div>
+                    <div class="answer-content">
+                        <p><strong>Code Agent follows a layered architecture with 5 distinct layers:</strong></p>
+                        <p><strong>1. Presentation Layer:</strong> CLI interface (<code>cli.py</code>) with 50+ commands and FastAPI server for REST/WebSocket access.</p>
+                        <p><strong>2. Agent Layer:</strong> CodingAgent as the master orchestrator, built on the Agno framework. It coordinates specialized sub-agents for code review, debugging, and testing.</p>
+                        <p><strong>3. LLM Integration Layer:</strong> Provider abstraction supporting both Claude (cloud) and Ollama (local). Uses a factory pattern for seamless switching.</p>
+                        <p><strong>4. Tool Layer:</strong> 15+ tools organized into categories (terminal, file, search, git, build). Each tool uses the <code>@tool</code> decorator for LLM function calling.</p>
+                        <p><strong>5. Persistence Layer:</strong> Three-tier storage - SQLite for sessions, JSON for memory entries, and filesystem for checkpoints.</p>
+                        <div class="key-points">
+                            <h4>Key Points to Mention</h4>
+                            <ul>
+                                <li>~25,000 lines of Python code across 69 files</li>
+                                <li>Clean separation of concerns enables independent testing</li>
+                                <li>Agno framework handles agent orchestration</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="qa-item">
+                <div class="question">
+                    <div class="q-number">2</div>
+                    <div class="q-text">Why did you choose a layered architecture over other patterns?</div>
+                    <span class="q-difficulty medium">Medium</span>
+                </div>
+                <div class="answer">
+                    <div class="answer-label">Sample Answer</div>
+                    <div class="answer-content">
+                        <p><strong>Layered architecture was chosen for several reasons:</strong></p>
+                        <p><strong>Separation of Concerns:</strong> Each layer has a single responsibility. The CLI doesn't know about database internals; the agent doesn't know about HTTP protocols.</p>
+                        <p><strong>Testability:</strong> I can unit test the tool layer without starting the full agent. Mock the LLM layer to test agent logic without API costs.</p>
+                        <p><strong>Flexibility:</strong> I can swap Ollama for Claude without touching the agent code. Add a web UI without modifying the core.</p>
+                        <p><strong>Maintainability:</strong> New developers can understand one layer at a time. Changes are isolated to specific layers.</p>
+                        <p>I considered microservices but rejected it as over-engineering for a CLI tool. Also considered hexagonal architecture, but the additional abstraction wasn't needed for this project's complexity.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="qa-item">
+                <div class="question">
+                    <div class="q-number">3</div>
+                    <div class="q-text">Walk me through the folder structure and how you organized the codebase.</div>
+                    <span class="q-difficulty easy">Easy</span>
+                </div>
+                <div class="answer">
+                    <div class="answer-label">Sample Answer</div>
+                    <div class="answer-content">
+                        <div class="code-block">
+<pre>src/
+├── agents/           <span class="comment"># Agent implementations</span>
+│   ├── coding_agent.py   <span class="comment"># Master orchestrator</span>
+│   └── specialized.py    <span class="comment"># Sub-agents</span>
+├── tools/            <span class="comment"># Tool implementations (15+ tools)</span>
+├── core/             <span class="comment"># Core utilities (25+ modules)</span>
+│   ├── llm.py           <span class="comment"># LLM provider abstraction</span>
+│   ├── memory.py        <span class="comment"># Long-term memory</span>
+│   └── smart_context.py <span class="comment"># Context window management</span>
+├── memory/           <span class="comment"># Session management</span>
+├── api/              <span class="comment"># FastAPI server</span>
+├── config/           <span class="comment"># Settings</span>
+└── cli.py            <span class="comment"># CLI interface</span></pre>
+                        </div>
+                        <p><strong>Organization principles:</strong> Group by feature (agents, tools) rather than type (models, services). Keep related code together. The <code>core/</code> directory holds shared utilities that don't fit elsewhere.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="qa-item">
+                <div class="question">
+                    <div class="q-number">4</div>
+                    <div class="q-text">What is the Agno framework and why did you use it?</div>
+                    <span class="q-difficulty medium">Medium</span>
+                </div>
+                <div class="answer">
+                    <div class="answer-label">Sample Answer</div>
+                    <div class="answer-content">
+                        <p><strong>Agno is a Python framework for building AI agents.</strong> It provides:</p>
+                        <p><strong>1. Agent Abstraction:</strong> Handles the conversation loop, tool detection, and response streaming. I define the agent's instructions and tools; Agno manages the orchestration.</p>
+                        <p><strong>2. Multi-Provider Support:</strong> Built-in support for Anthropic (Claude), Ollama, OpenAI. I can switch providers without rewriting agent logic.</p>
+                        <p><strong>3. Tool Decorator:</strong> The <code>@tool</code> decorator automatically generates JSON schemas from Python functions for LLM function calling.</p>
+                        <p><strong>4. Session Management:</strong> Built-in SQLite persistence for conversation history.</p>
+                        <p><strong>Why I chose it:</strong> Building an agent framework from scratch would take months. Agno gave me a solid foundation so I could focus on the unique features of Code Agent (memory system, specialized tools, checkpoint/undo).</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="qa-item">
+                <div class="question">
+                    <div class="q-number">5</div>
+                    <div class="q-text">How does data flow from user input to response output?</div>
+                    <span class="q-difficulty medium">Medium</span>
+                </div>
+                <div class="answer">
+                    <div class="answer-label">Sample Answer</div>
+                    <div class="answer-content">
+                        <p><strong>The request flows through 8 stages:</strong></p>
+                        <p><strong>1. Input:</strong> User enters text in CLI or sends API request.</p>
+                        <p><strong>2. Parse:</strong> Detect if it's a slash command (/git) or natural language.</p>
+                        <p><strong>3. Context Load:</strong> Smart Context Window retrieves relevant files and memory entries.</p>
+                        <p><strong>4. Agent Run:</strong> CodingAgent.run() invokes the Agno framework.</p>
+                        <p><strong>5. LLM Process:</strong> Claude/Ollama processes the enriched prompt, potentially outputting tool calls.</p>
+                        <p><strong>6. Tool Execute:</strong> Detected tool calls are routed to Python implementations, results fed back.</p>
+                        <p><strong>7. Stream:</strong> Response streams token-by-token to the user (~100ms first token).</p>
+                        <p><strong>8. Persist:</strong> Conversation stored in SQLite, memory entries created, checkpoints saved.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Category 2: Agent Pattern -->
+        <section id="agent-pattern" class="category">
+            <div class="category-header">
+                <div class="category-icon">🤖</div>
+                <h2>Agent Pattern & ReAct</h2>
+                <span class="count">5 questions</span>
+            </div>
+
+            <div class="qa-item">
+                <div class="question">
+                    <div class="q-number">6</div>
+                    <div class="q-text">What is the ReAct pattern and how did you implement it?</div>
+                    <span class="q-difficulty hard">Hard</span>
+                </div>
+                <div class="answer">
+                    <div class="answer-label">Sample Answer</div>
+                    <div class="answer-content">
+                        <p><strong>ReAct = Reasoning + Acting.</strong> It's a loop where the agent alternates between thinking and doing:</p>
+                        <p><strong>1. Observe:</strong> Receive input (user message or tool result)</p>
+                        <p><strong>2. Think:</strong> LLM reasons about what to do next</p>
+                        <p><strong>3. Act:</strong> Execute a tool call or generate response</p>
+                        <p><strong>4. Observe:</strong> See the result of the action</p>
+                        <p><strong>5. Repeat:</strong> Loop continues until task is complete</p>
+                        <p><strong>Implementation:</strong> Agno handles this loop internally. When the LLM outputs a tool call, Agno executes it and feeds the result back. The loop continues until the LLM returns a final response without tool calls.</p>
+                        <div class="code-block">
+<pre><span class="comment"># Simplified ReAct loop (handled by Agno)</span>
+<span class="keyword">while</span> <span class="keyword">not</span> done:
+    response = llm.<span class="function">generate</span>(messages)
+    <span class="keyword">if</span> response.tool_calls:
+        results = <span class="function">execute_tools</span>(response.tool_calls)
+        messages.<span class="function">append</span>(tool_results)
+    <span class="keyword">else</span>:
+        done = <span class="keyword">True</span>
+        <span class="keyword">return</span> response.content</pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="qa-item">
+                <div class="question">
+                    <div class="q-number">7</div>
+                    <div class="q-text">Explain your Master-Specialist agent architecture.</div>
+                    <span class="q-difficulty medium">Medium</span>
+                </div>
+                <div class="answer">
+                    <div class="answer-label">Sample Answer</div>
+                    <div class="answer-content">
+                        <p><strong>I implemented a hierarchical agent pattern:</strong></p>
+                        <p><strong>Master Agent (CodingAgent):</strong> Handles all user requests, has access to all 15+ tools, can delegate to specialists. It's the main orchestrator.</p>
+                        <p><strong>Specialist Agents:</strong></p>
+                        <p>• <strong>CodeReviewer:</strong> Focused on code quality, bugs, security. Only has read tools.</p>
+                        <p>• <strong>Debugger:</strong> Error analysis and fix suggestions.</p>
+                        <p>• <strong>Tester:</strong> Generates unit tests for code.</p>
+                        <p>• <strong>Refactorer:</strong> Suggests code improvements.</p>
+                        <p>• <strong>DocAgent:</strong> Creates documentation and docstrings.</p>
+                        <p><strong>Why this pattern:</strong> Specialists have focused system prompts and limited tools. A CodeReviewer that only thinks about quality produces better reviews than a general agent trying to do everything.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="qa-item">
+                <div class="question">
+                    <div class="q-number">8</div>
+                    <div class="q-text">How does the master agent decide when to delegate to a specialist?</div>
+                    <span class="q-difficulty medium">Medium</span>
+                </div>
+                <div class="answer">
+                    <div class="answer-label">Sample Answer</div>
+                    <div class="answer-content">
+                        <p><strong>Delegation happens through tool calls.</strong> Each specialist is exposed as a tool to the master agent:</p>
+                        <div class="code-block">
+<pre><span class="decorator">@tool</span>(name=<span class="string">"code_review"</span>)
+<span class="keyword">def</span> <span class="function">code_review</span>(file_path: str) -> str:
+    <span class="string">"""Invoke CodeReviewer agent for quality analysis."""</span>
+    reviewer = <span class="function">CodeReviewerAgent</span>()
+    <span class="keyword">return</span> reviewer.<span class="function">review</span>(file_path)</pre>
+                        </div>
+                        <p>The master's system prompt instructs: "For code review tasks, use the code_review tool." When the user asks "Review my authentication module", the LLM matches this to the code_review tool and calls it.</p>
+                        <p>The specialist executes, produces a detailed review, and the result is returned to the master, who presents it to the user.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="qa-item">
+                <div class="question">
+                    <div class="q-number">9</div>
+                    <div class="q-text">Why do specialist agents have limited tool sets?</div>
+                    <span class="q-difficulty easy">Easy</span>
+                </div>
+                <div class="answer">
+                    <div class="answer-label">Sample Answer</div>
+                    <div class="answer-content">
+                        <p><strong>Principle of Least Privilege.</strong> Each agent only gets what it needs:</p>
+                        <p><strong>Security:</strong> CodeReviewer can only read files, not write. Even if it "hallucinates" a fix, it can't accidentally modify code during review.</p>
+                        <p><strong>Focus:</strong> Fewer tools means less distraction. The agent doesn't waste tokens considering irrelevant tools.</p>
+                        <p><strong>Smaller Context:</strong> Tool schemas are included in the prompt. Fewer tools = fewer tokens used on schema.</p>
+                        <p><strong>Predictability:</strong> When I know a specialist can only read, I can trust its output won't have side effects.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="qa-item">
+                <div class="question">
+                    <div class="q-number">10</div>
+                    <div class="q-text">What happens if the agent gets stuck in a loop or fails?</div>
+                    <span class="q-difficulty medium">Medium</span>
+                </div>
+                <div class="answer">
+                    <div class="answer-label">Sample Answer</div>
+                    <div class="answer-content">
+                        <p><strong>Multiple safeguards:</strong></p>
+                        <p><strong>1. Max Iterations:</strong> Agno has a configurable limit on ReAct iterations (default ~10). After that, it forces a response.</p>
+                        <p><strong>2. Tool Timeouts:</strong> Each tool has a 120-second timeout. Long-running commands are killed.</p>
+                        <p><strong>3. Error Handling:</strong> Tool errors are caught and returned as text to the LLM. It can then reason about the error and try a different approach.</p>
+                        <p><strong>4. Checkpoints:</strong> Before risky operations, we auto-create checkpoints. If something goes wrong, the user can restore.</p>
+                        <p><strong>5. User Cancellation:</strong> Streaming allows users to cancel mid-response if they see the agent going wrong.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Category 3: LLM Integration -->
+        <section id="llm" class="category">
+            <div class="category-header">
+                <div class="category-icon">🧠</div>
+                <h2>LLM Integration</h2>
+                <span class="count">5 questions</span>
+            </div>
+
+            <div class="qa-item">
+                <div class="question">
+                    <div class="q-number">11</div>
+                    <div class="q-text">How did you implement support for multiple LLM providers?</div>
+                    <span class="q-difficulty medium">Medium</span>
+                </div>
+                <div class="answer">
+                    <div class="answer-label">Sample Answer</div>
+                    <div class="answer-content">
+                        <p><strong>Factory pattern with provider abstraction:</strong></p>
+                        <div class="code-block">
+<pre><span class="keyword">def</span> <span class="function">get_model</span>():
+    <span class="keyword">if</span> settings.llm_provider == <span class="string">"anthropic"</span>:
+        <span class="keyword">return</span> Claude(
+            id=settings.anthropic_model,
+            api_key=settings.anthropic_api_key,
+            temperature=<span class="number">0.2</span>
+        )
+    <span class="keyword">else</span>:
+        <span class="keyword">return</span> Ollama(
+            id=settings.ollama_model,
+            host=settings.ollama_base_url
+        )</pre>
+                        </div>
+                        <p>Both Claude and Ollama implement the same interface (run, stream, tool support) through Agno. The agent code doesn't know which provider is active - it just calls <code>agent.run()</code>.</p>
+                        <p><strong>Configuration:</strong> Provider is selected via <code>LLM_PROVIDER</code> environment variable. Users can switch without code changes.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="qa-item">
+                <div class="question">
+                    <div class="q-number">12</div>
+                    <div class="q-text">What is streaming and why is it important for your application?</div>
+                    <span class="q-difficulty easy">Easy</span>
+                </div>
+                <div class="answer">
+                    <div class="answer-label">Sample Answer</div>
+                    <div class="answer-content">
+                        <p><strong>Streaming sends tokens as they're generated</strong> instead of waiting for the complete response.</p>
+                        <p><strong>Without streaming:</strong> User waits 5-30 seconds staring at nothing, then sees entire response at once.</p>
+                        <p><strong>With streaming:</strong> First token appears in ~100ms. User sees response build progressively.</p>
+                        <p><strong>Benefits:</strong></p>
+                        <p>• <strong>Perceived Speed:</strong> Even if total time is the same, it feels faster.</p>
+                        <p>• <strong>Early Cancellation:</strong> User can stop if the agent is going wrong.</p>
+                        <p>• <strong>Memory Efficiency:</strong> Process chunks instead of buffering entire response.</p>
+                        <p>• <strong>Tool Progress:</strong> We can show tool execution status in real-time.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="qa-item">
+                <div class="question">
+                    <div class="q-number">13</div>
+                    <div class="q-text">How do you handle rate limiting from the LLM provider?</div>
+                    <span class="q-difficulty medium">Medium</span>
+                </div>
+                <div class="answer">
+                    <div class="answer-label">Sample Answer</div>
+                    <div class="answer-content">
+                        <p><strong>Multiple strategies:</strong></p>
+                        <p><strong>1. Detection:</strong> Catch rate limit errors (HTTP 429 or specific error messages).</p>
+                        <p><strong>2. Backoff:</strong> Exponential backoff with jitter. Wait 1s, then 2s, then 4s, etc.</p>
+                        <p><strong>3. User Feedback:</strong> Display countdown timer so user knows wait time.</p>
+                        <p><strong>4. Local Fallback:</strong> For Anthropic rate limits, optionally switch to Ollama temporarily.</p>
+                        <p><strong>5. Request Optimization:</strong> Smart context window limits token usage, reducing rate limit hits.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="qa-item">
+                <div class="question">
+                    <div class="q-number">14</div>
+                    <div class="q-text">What is temperature and how did you configure it?</div>
+                    <span class="q-difficulty easy">Easy</span>
+                </div>
+                <div class="answer">
+                    <div class="answer-label">Sample Answer</div>
+                    <div class="answer-content">
+                        <p><strong>Temperature controls randomness in LLM output:</strong></p>
+                        <p><strong>Temperature 0.0:</strong> Deterministic. Same input = same output. Best for code where consistency matters.</p>
+                        <p><strong>Temperature 1.0:</strong> Creative, varied outputs. Good for brainstorming.</p>
+                        <p><strong>My configuration:</strong> Default temperature is 0.2 for code tasks. Low enough for consistency, but not zero to allow some flexibility.</p>
+                        <p><strong>Profiles:</strong> I created profiles for different use cases:</p>
+                        <p>• <code>precise</code>: temp 0.0 for critical code</p>
+                        <p>• <code>creative</code>: temp 0.8 for brainstorming</p>
+                        <p>• <code>default</code>: temp 0.2 balanced</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="qa-item">
+                <div class="question">
+                    <div class="q-number">15</div>
+                    <div class="q-text">Why support both cloud (Claude) and local (Ollama) models?</div>
+                    <span class="q-difficulty easy">Easy</span>
+                </div>
+                <div class="answer">
+                    <div class="answer-label">Sample Answer</div>
+                    <div class="answer-content">
+                        <p><strong>Different use cases require different trade-offs:</strong></p>
+                        <p><strong>Claude (Cloud):</strong></p>
+                        <p>• Best quality and speed</p>
+                        <p>• 200K token context</p>
+                        <p>• Requires internet, has costs</p>
+                        <p>• Good for production use</p>
+                        <p><strong>Ollama (Local):</strong></p>
+                        <p>• 100% private - no data leaves machine</p>
+                        <p>• Works offline</p>
+                        <p>• Free (just hardware costs)</p>
+                        <p>• Good for sensitive codebases, air-gapped environments</p>
+                        <p><strong>User choice:</strong> Some companies prohibit sending code to external APIs. Ollama lets them still use the tool.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Category 4: Tool System -->
+        <section id="tools" class="category">
+            <div class="category-header">
+                <div class="category-icon">🔧</div>
+                <h2>Tool System</h2>
+                <span class="count">5 questions</span>
+            </div>
+
+            <div class="qa-item">
+                <div class="question">
+                    <div class="q-number">16</div>
+                    <div class="q-text">Explain how the @tool decorator works in your implementation.</div>
+                    <span class="q-difficulty hard">Hard</span>
+                </div>
+                <div class="answer">
+                    <div class="answer-label">Sample Answer</div>
+                    <div class="answer-content">
+                        <p><strong>The @tool decorator transforms Python functions into LLM-callable tools.</strong></p>
+                        <div class="code-block">
+<pre><span class="decorator">@tool</span>(name=<span class="string">"read_file"</span>)
+<span class="keyword">def</span> <span class="function">read_file</span>(file_path: str, start_line: int = <span class="keyword">None</span>) -> str:
+    <span class="string">"""Read contents of a file.
+
+    Args:
+        file_path: Path to the file to read
+        start_line: Optional starting line number
+    """</span>
+    <span class="keyword">return</span> Path(file_path).<span class="function">read_text</span>()</pre>
+                        </div>
+                        <p><strong>What the decorator does:</strong></p>
+                        <p>1. Extracts function name, parameters, types from signature</p>
+                        <p>2. Parses docstring for descriptions</p>
+                        <p>3. Generates JSON schema for the LLM</p>
+                        <p>4. Registers the function in a tool registry</p>
+                        <p><strong>Generated schema:</strong></p>
+                        <div class="code-block">
+<pre>{
+  <span class="string">"name"</span>: <span class="string">"read_file"</span>,
+  <span class="string">"description"</span>: <span class="string">"Read contents of a file."</span>,
+  <span class="string">"parameters"</span>: {
+    <span class="string">"file_path"</span>: {<span class="string">"type"</span>: <span class="string">"string"</span>, <span class="string">"required"</span>: true},
+    <span class="string">"start_line"</span>: {<span class="string">"type"</span>: <span class="string">"integer"</span>, <span class="string">"required"</span>: false}
+  }
+}</pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="qa-item">
+                <div class="question">
+                    <div class="q-number">17</div>
+                    <div class="q-text">How does the LLM decide which tool to use?</div>
+                    <span class="q-difficulty medium">Medium</span>
+                </div>
+                <div class="answer">
+                    <div class="answer-label">Sample Answer</div>
+                    <div class="answer-content">
+                        <p><strong>The LLM matches user intent to tool descriptions.</strong></p>
+                        <p>Each tool has a description in its docstring. These descriptions are included in the system prompt as available functions. When the user says "read config.py", the LLM:</p>
+                        <p>1. Sees the request requires file reading</p>
+                        <p>2. Scans available tool descriptions</p>
+                        <p>3. Matches to <code>read_file</code>: "Read contents of a file"</p>
+                        <p>4. Outputs structured tool call with arguments</p>
+                        <p><strong>Good descriptions are critical.</strong> Vague descriptions lead to wrong tool choices. I write descriptions that clearly state when to use each tool.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="qa-item">
+                <div class="question">
+                    <div class="q-number">18</div>
+                    <div class="q-text">Walk me through the tool execution pipeline.</div>
+                    <span class="q-difficulty medium">Medium</span>
+                </div>
+                <div class="answer">
+                    <div class="answer-label">Sample Answer</div>
+                    <div class="answer-content">
+                        <p><strong>6-stage pipeline:</strong></p>
+                        <p><strong>1. LLM Output:</strong> Model returns JSON with tool name and arguments.</p>
+                        <p><strong>2. Tool Router:</strong> Match tool name to registered function in registry.</p>
+                        <p><strong>3. Validation:</strong> Check required parameters are present, types are correct.</p>
+                        <p><strong>4. Execution:</strong> Call the Python function with validated arguments.</p>
+                        <p><strong>5. Logging:</strong> Record call in tool_logger for audit trail.</p>
+                        <p><strong>6. Return:</strong> Result (string) fed back to LLM for response generation.</p>
+                        <p>If any step fails, the error is caught and returned as a string to the LLM, which can then reason about the error.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="qa-item">
+                <div class="question">
+                    <div class="q-number">19</div>
+                    <div class="q-text">How do you handle tool errors?</div>
+                    <span class="q-difficulty easy">Easy</span>
+                </div>
+                <div class="answer">
+                    <div class="answer-label">Sample Answer</div>
+                    <div class="answer-content">
+                        <p><strong>Errors become part of the conversation.</strong></p>
+                        <div class="code-block">
+<pre><span class="keyword">try</span>:
+    result = tool_fn(**arguments)
+<span class="keyword">except</span> FileNotFoundError <span class="keyword">as</span> e:
+    result = f<span class="string">"Error: File not found: {e}"</span>
+<span class="keyword">except</span> Exception <span class="keyword">as</span> e:
+    result = f<span class="string">"Error executing tool: {e}"</span>
+
+<span class="comment"># Feed error back to LLM</span>
+agent.<span class="function">add_tool_result</span>(tool_id, result)</pre>
+                        </div>
+                        <p>The LLM receives the error message and can:</p>
+                        <p>• Try a different approach ("File not found, let me search for it")</p>
+                        <p>• Ask for clarification ("Which config.py did you mean?")</p>
+                        <p>• Report the issue to the user</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="qa-item">
+                <div class="question">
+                    <div class="q-number">20</div>
+                    <div class="q-text">How did you organize tools into categories?</div>
+                    <span class="q-difficulty easy">Easy</span>
+                </div>
+                <div class="answer">
+                    <div class="answer-label">Sample Answer</div>
+                    <div class="answer-content">
+                        <p><strong>6 categories based on functionality:</strong></p>
+                        <p><strong>Terminal (4):</strong> run_command, cd, pwd, ls</p>
+                        <p><strong>File (7):</strong> read, write, edit, create, delete, move, copy</p>
+                        <p><strong>Search (4):</strong> search_files, find_files, get_structure, get_info</p>
+                        <p><strong>Git (6+):</strong> status, diff, add, commit, branch, push</p>
+                        <p><strong>Build (5):</strong> detect_project, build, test, lint, build_and_fix</p>
+                        <p><strong>Specialized (5):</strong> code_review, debug_help, generate_tests, refactor, docs</p>
+                        <p><strong>Why categorize:</strong> Easier to assign subsets to specialists. CodeReviewer gets only File + Search. Maintainability - new git tools go in git_tools.py.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Category 5: Memory -->
+        <section id="memory" class="category">
+            <div class="category-header">
+                <div class="category-icon">💾</div>
+                <h2>Memory System</h2>
+                <span class="count">5 questions</span>
+            </div>
+
+            <div class="qa-item">
+                <div class="question">
+                    <div class="q-number">21</div>
+                    <div class="q-text">Why do you need a memory system for an LLM application?</div>
+                    <span class="q-difficulty easy">Easy</span>
+                </div>
+                <div class="answer">
+                    <div class="answer-label">Sample Answer</div>
+                    <div class="answer-content">
+                        <p><strong>LLMs are stateless.</strong> They have no memory between API calls. Every request starts fresh.</p>
+                        <p>Without memory:</p>
+                        <p>• The agent forgets previous conversations</p>
+                        <p>• Can't learn from past errors and solutions</p>
+                        <p>• Repeats the same mistakes</p>
+                        <p>• Asks the same clarifying questions</p>
+                        <p>• Can't maintain project context</p>
+                        <p>With memory:</p>
+                        <p>• Remembers what you discussed yesterday</p>
+                        <p>• "Last time we fixed CORS by adding middleware"</p>
+                        <p>• Builds on previous work</p>
+                        <p>• Learns your preferences</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="qa-item">
+                <div class="question">
+                    <div class="q-number">22</div>
+                    <div class="q-text">Explain your 3-layer memory architecture.</div>
+                    <span class="q-difficulty hard">Hard</span>
+                </div>
+                <div class="answer">
+                    <div class="answer-label">Sample Answer</div>
+                    <div class="answer-content">
+                        <p><strong>Three layers for different purposes:</strong></p>
+                        <p><strong>Layer 1 - Session Memory:</strong></p>
+                        <p>• Duration: Current conversation</p>
+                        <p>• Storage: In-memory + SQLite (via Agno)</p>
+                        <p>• Contains: Messages, tool calls, attachments</p>
+                        <p>• Like: RAM - fast, temporary</p>
+                        <p><strong>Layer 2 - Long-Term Memory:</strong></p>
+                        <p>• Duration: Permanent</p>
+                        <p>• Storage: JSON files per project</p>
+                        <p>• Contains: Decisions, errors, solutions with importance scores</p>
+                        <p>• Like: Hard drive - persistent</p>
+                        <p><strong>Layer 3 - Smart Context:</strong></p>
+                        <p>• Duration: Per request (computed on demand)</p>
+                        <p>• Contains: Relevant files, prioritized by importance</p>
+                        <p>• Like: CPU cache - dynamic, query-specific</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="qa-item">
+                <div class="question">
+                    <div class="q-number">23</div>
+                    <div class="q-text">How do you decide what's important enough to store in long-term memory?</div>
+                    <span class="q-difficulty medium">Medium</span>
+                </div>
+                <div class="answer">
+                    <div class="answer-label">Sample Answer</div>
+                    <div class="answer-content">
+                        <p><strong>Importance scoring from 1-5:</strong></p>
+                        <p><strong>Score 5 (Critical):</strong> Bug fixes, security patches, major decisions</p>
+                        <p><strong>Score 4:</strong> Error solutions, architecture choices</p>
+                        <p><strong>Score 3:</strong> Code changes, new features</p>
+                        <p><strong>Score 2:</strong> Routine operations, minor tweaks</p>
+                        <p><strong>Score 1:</strong> File reads, navigation</p>
+                        <p><strong>Scoring factors:</strong></p>
+                        <p>• Did it involve an error? +2</p>
+                        <p>• Did it modify files? +1</p>
+                        <p>• Did user explicitly confirm something? +1</p>
+                        <p>• Was it a multi-step solution? +1</p>
+                        <p>Only entries scoring 3+ are stored. Lower scores are ephemeral.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="qa-item">
+                <div class="question">
+                    <div class="q-number">24</div>
+                    <div class="q-text">How does memory recall work?</div>
+                    <span class="q-difficulty medium">Medium</span>
+                </div>
+                <div class="answer">
+                    <div class="answer-label">Sample Answer</div>
+                    <div class="answer-content">
+                        <p><strong>Pattern matching + importance ranking:</strong></p>
+                        <p>When user asks "I'm seeing that CORS error again":</p>
+                        <p>1. Extract keywords: "CORS", "error"</p>
+                        <p>2. Search memory entries for matching tags/content</p>
+                        <p>3. Rank by: relevance × importance × recency</p>
+                        <p>4. Return top matches (typically 3-5)</p>
+                        <p>5. Inject into context: "Previous solution: Added CORS middleware in server.py"</p>
+                        <p>The recalled memory is included in the system prompt, so the LLM can reference past solutions.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="qa-item">
+                <div class="question">
+                    <div class="q-number">25</div>
+                    <div class="q-text">How do you ensure project isolation in the memory system?</div>
+                    <span class="q-difficulty easy">Easy</span>
+                </div>
+                <div class="answer">
+                    <div class="answer-label">Sample Answer</div>
+                    <div class="answer-content">
+                        <p><strong>MD5 hash of workspace path.</strong></p>
+                        <div class="code-block">
+<pre>workspace = <span class="string">"/projects/my-app"</span>
+project_id = hashlib.<span class="function">md5</span>(workspace.encode()).<span class="function">hexdigest</span>()
+<span class="comment"># project_id = "a3f2b1c4d5e6..."</span>
+
+memory_path = f<span class="string">"data/memory/{project_id}/entries.json"</span></pre>
+                        </div>
+                        <p>Each project gets its own memory directory. When you switch workspaces, the agent loads different memories. No cross-project contamination.</p>
+                        <p><strong>Why MD5?</strong> Creates fixed-length, filesystem-safe identifiers from variable-length paths.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Category 6: RAG -->
+        <section id="rag" class="category">
+            <div class="category-header">
+                <div class="category-icon">📚</div>
+                <h2>RAG Implementation</h2>
+                <span class="count">5 questions</span>
+            </div>
+
+            <div class="qa-item">
+                <div class="question">
+                    <div class="q-number">26</div>
+                    <div class="q-text">What is RAG and why is it important for a code assistant?</div>
+                    <span class="q-difficulty medium">Medium</span>
+                </div>
+                <div class="answer">
+                    <div class="answer-label">Sample Answer</div>
+                    <div class="answer-content">
+                        <p><strong>RAG = Retrieval-Augmented Generation</strong></p>
+                        <p>Instead of relying only on the LLM's training data, we retrieve relevant information from the codebase and include it in the prompt.</p>
+                        <p><strong>Without RAG:</strong></p>
+                        <p>• LLM hallucinates function names</p>
+                        <p>• Suggests patterns that don't exist in your code</p>
+                        <p>• Generic advice that doesn't fit</p>
+                        <p><strong>With RAG:</strong></p>
+                        <p>• References actual functions from your codebase</p>
+                        <p>• Uses your naming conventions</p>
+                        <p>• Specific, actionable fixes</p>
+                        <p>RAG "grounds" the response in reality. It's the difference between "typically you'd..." and "in your auth.py line 45..."</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="qa-item">
+                <div class="question">
+                    <div class="q-number">27</div>
+                    <div class="q-text">How does your Smart Context Window work?</div>
+                    <span class="q-difficulty hard">Hard</span>
+                </div>
+                <div class="answer">
+                    <div class="answer-label">Sample Answer</div>
+                    <div class="answer-content">
+                        <p><strong>Token-budgeted file prioritization:</strong></p>
+                        <p><strong>1. Token Budget:</strong> Each model has limits (Claude: 200K, Ollama: 32K). We allocate ~45% for file context.</p>
+                        <p><strong>2. File Discovery:</strong> Based on query, find potentially relevant files using pattern matching and search.</p>
+                        <p><strong>3. Priority Scoring:</strong></p>
+                        <p>• Extension: .py=0.9, .md=0.5</p>
+                        <p>• Name relevance to query</p>
+                        <p>• User attachments = priority 1.0</p>
+                        <p>• Config files auto-included</p>
+                        <p><strong>4. Token Estimation:</strong> characters × 0.25</p>
+                        <p><strong>5. Fill Budget:</strong> Add highest-priority files until budget exhausted.</p>
+                        <p>Result: Most relevant code in context, never exceeds limits.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="qa-item">
+                <div class="question">
+                    <div class="q-number">28</div>
+                    <div class="q-text">How do you estimate tokens?</div>
+                    <span class="q-difficulty easy">Easy</span>
+                </div>
+                <div class="answer">
+                    <div class="answer-label">Sample Answer</div>
+                    <div class="answer-content">
+                        <p><strong>Characters × 0.25</strong></p>
+                        <p>This is a rough estimate that works well in practice. On average, 1 token ≈ 4 characters for English text and code.</p>
+                        <div class="code-block">
+<pre><span class="keyword">def</span> <span class="function">estimate_tokens</span>(text: str) -> int:
+    <span class="keyword">return</span> int(len(text) * 0.25)</pre>
+                        </div>
+                        <p><strong>Why not exact counting?</strong> Exact tokenization (using tiktoken) is slower and requires model-specific tokenizers. The 0.25 estimate is fast enough for budgeting with a safety margin.</p>
+                        <p>I err on the side of underestimating content to leave room for response.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="qa-item">
+                <div class="question">
+                    <div class="q-number">29</div>
+                    <div class="q-text">What files are auto-included regardless of query?</div>
+                    <span class="q-difficulty easy">Easy</span>
+                </div>
+                <div class="answer">
+                    <div class="answer-label">Sample Answer</div>
+                    <div class="answer-content">
+                        <p><strong>Project configuration files:</strong></p>
+                        <p>• <code>package.json</code> - Node.js dependencies, scripts</p>
+                        <p>• <code>pyproject.toml</code> - Python project config</p>
+                        <p>• <code>Cargo.toml</code> - Rust dependencies</p>
+                        <p>• <code>README.md</code> - Project overview</p>
+                        <p>• <code>.env.example</code> - Environment structure (not .env!)</p>
+                        <p><strong>Why auto-include?</strong> These files provide essential context about the project structure, dependencies, and conventions. The agent needs to know "this is a FastAPI project using SQLAlchemy" to give relevant advice.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="qa-item">
+                <div class="question">
+                    <div class="q-number">30</div>
+                    <div class="q-text">What's the difference between RAG and fine-tuning?</div>
+                    <span class="q-difficulty medium">Medium</span>
+                </div>
+                <div class="answer">
+                    <div class="answer-label">Sample Answer</div>
+                    <div class="answer-content">
+                        <p><strong>RAG: Runtime retrieval</strong></p>
+                        <p>• Context changes with each query</p>
+                        <p>• Always uses current codebase state</p>
+                        <p>• No training required</p>
+                        <p>• Best for: Dynamic content, codebases that change</p>
+                        <p><strong>Fine-tuning: Train into weights</strong></p>
+                        <p>• Knowledge permanently encoded in model</p>
+                        <p>• Requires training data and compute</p>
+                        <p>• Static - doesn't update without retraining</p>
+                        <p>• Best for: Domain terminology, stable patterns</p>
+                        <p><strong>For Code Agent:</strong> RAG is the right choice because codebases change constantly. Fine-tuning would be stale immediately.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Category 7: Persistence -->
+        <section id="persistence" class="category">
+            <div class="category-header">
+                <div class="category-icon">🗄️</div>
+                <h2>Data Persistence</h2>
+                <span class="count">5 questions</span>
+            </div>
+
+            <div class="qa-item">
+                <div class="question">
+                    <div class="q-number">31</div>
+                    <div class="q-text">Why did you use multiple storage types (SQLite, JSON, filesystem)?</div>
+                    <span class="q-difficulty medium">Medium</span>
+                </div>
+                <div class="answer">
+                    <div class="answer-label">Sample Answer</div>
+                    <div class="answer-content">
+                        <p><strong>Right tool for the job:</strong></p>
+                        <p><strong>SQLite:</strong> Best for structured queries. Session data needs fast lookups by session_id, message ordering. ACID compliance for reliability.</p>
+                        <p><strong>JSON:</strong> Human-readable, version-control friendly. Memory entries and configs can be inspected, edited, diffed. No server needed.</p>
+                        <p><strong>Filesystem:</strong> File snapshots for checkpoints. Need to store arbitrary binary data, preserve directory structure. Natural fit for file backups.</p>
+                        <p>Using only SQLite would make debugging hard (can't just cat a file). Using only JSON would make queries slow (no indexes).</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="qa-item">
+                <div class="question">
+                    <div class="q-number">32</div>
+                    <div class="q-text">How does your checkpoint system work?</div>
+                    <span class="q-difficulty medium">Medium</span>
+                </div>
+                <div class="answer">
+                    <div class="answer-label">Sample Answer</div>
+                    <div class="answer-content">
+                        <p><strong>Full file snapshots before risky operations:</strong></p>
+                        <p><strong>Auto-checkpoints:</strong> Created before file edits, command execution, git operations.</p>
+                        <p><strong>Named checkpoints:</strong> User can create named snapshots: <code>/checkpoint save before-refactor</code></p>
+                        <p><strong>Storage structure:</strong></p>
+                        <div class="code-block">
+<pre>checkpoints/{project_id}/
+├── manifest.json      <span class="comment"># Checkpoint metadata</span>
+└── snapshots/
+    ├── 1703849234_auth.py
+    └── 1703849234_config.py</pre>
+                        </div>
+                        <p><strong>Restore:</strong> <code>/checkpoint restore before-refactor</code> copies snapshots back to original locations.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="qa-item">
+                <div class="question">
+                    <div class="q-number">33</div>
+                    <div class="q-text">Explain your undo/redo implementation.</div>
+                    <span class="q-difficulty medium">Medium</span>
+                </div>
+                <div class="answer">
+                    <div class="answer-label">Sample Answer</div>
+                    <div class="answer-content">
+                        <p><strong>Operation stack pattern:</strong></p>
+                        <p>Each file operation is recorded as an object with <code>apply()</code> and <code>reverse()</code> methods.</p>
+                        <div class="code-block">
+<pre><span class="keyword">class</span> WriteOperation:
+    <span class="keyword">def</span> <span class="function">apply</span>(self):
+        self.file.<span class="function">write</span>(self.new_content)
+
+    <span class="keyword">def</span> <span class="function">reverse</span>(self):
+        self.file.<span class="function">write</span>(self.old_content)</pre>
+                        </div>
+                        <p><strong>Undo:</strong> Pop from undo_stack, call reverse(), push to redo_stack.</p>
+                        <p><strong>Redo:</strong> Pop from redo_stack, call apply(), push to undo_stack.</p>
+                        <p><strong>Grouped operations:</strong> Multi-file changes (like a refactor) are wrapped in a group that undoes all at once.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="qa-item">
+                <div class="question">
+                    <div class="q-number">34</div>
+                    <div class="q-text">How do you prevent data corruption on crash?</div>
+                    <span class="q-difficulty hard">Hard</span>
+                </div>
+                <div class="answer">
+                    <div class="answer-label">Sample Answer</div>
+                    <div class="answer-content">
+                        <p><strong>Multiple safeguards:</strong></p>
+                        <p><strong>1. Atomic writes for JSON:</strong></p>
+                        <div class="code-block">
+<pre><span class="comment"># Write to temp file, then rename (atomic on POSIX)</span>
+temp = path + <span class="string">".tmp"</span>
+temp.<span class="function">write_text</span>(json.dumps(data))
+temp.<span class="function">rename</span>(path)  <span class="comment"># Atomic operation</span></pre>
+                        </div>
+                        <p><strong>2. SQLite WAL mode:</strong> Write-ahead logging survives crashes. Database stays consistent.</p>
+                        <p><strong>3. Checkpoints are complete snapshots:</strong> Even if one is corrupted, others are independent.</p>
+                        <p><strong>4. No in-place mutations:</strong> We write new data, then swap references.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="qa-item">
+                <div class="question">
+                    <div class="q-number">35</div>
+                    <div class="q-text">What data do you exclude from persistence for security?</div>
+                    <span class="q-difficulty easy">Easy</span>
+                </div>
+                <div class="answer">
+                    <div class="answer-label">Sample Answer</div>
+                    <div class="answer-content">
+                        <p><strong>Sensitive file patterns excluded:</strong></p>
+                        <p>• <code>.env</code> - Environment variables with secrets</p>
+                        <p>• <code>credentials.json</code>, <code>secrets.yaml</code></p>
+                        <p>• <code>*_key*</code>, <code>*password*</code> in filenames</p>
+                        <p>• <code>id_rsa</code>, SSH keys</p>
+                        <p>• <code>.git/config</code> (may contain tokens)</p>
+                        <p><strong>Where excluded:</strong></p>
+                        <p>• Not included in context window</p>
+                        <p>• Not stored in checkpoints</p>
+                        <p>• Not recorded in memory entries</p>
+                        <p>If user explicitly asks to read .env, we warn but comply.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Category 8: Security -->
+        <section id="security" class="category">
+            <div class="category-header">
+                <div class="category-icon">🔒</div>
+                <h2>Security & Guardrails</h2>
+                <span class="count">10 questions</span>
+            </div>
+
+            <div class="qa-item">
+                <div class="question">
+                    <div class="q-number">36</div>
+                    <div class="q-text">How do you prevent path traversal attacks?</div>
+                    <span class="q-difficulty hard">Hard</span>
+                </div>
+                <div class="answer">
+                    <div class="answer-label">Sample Answer</div>
+                    <div class="answer-content">
+                        <p><strong>Working directory scoping:</strong></p>
+                        <div class="code-block">
+<pre><span class="keyword">def</span> <span class="function">validate_path</span>(path: str, workspace: Path) -> Path:
+    <span class="comment"># Resolve to absolute, eliminating .. and symlinks</span>
+    resolved = (workspace / path).<span class="function">resolve</span>()
+
+    <span class="comment"># Check if result is still under workspace</span>
+    <span class="keyword">if not</span> str(resolved).<span class="function">startswith</span>(str(workspace)):
+        <span class="keyword">raise</span> SecurityError(<span class="string">"Path escapes workspace"</span>)
+
+    <span class="keyword">return</span> resolved</pre>
+                        </div>
+                        <p><strong>Protection against:</strong></p>
+                        <p>• <code>../../etc/passwd</code> - Normalized and rejected</p>
+                        <p>• <code>/absolute/path</code> - Resolved relative to workspace</p>
+                        <p>• Symlink escapes - resolve() follows symlinks before checking</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="qa-item">
+                <div class="question">
+                    <div class="q-number">37</div>
+                    <div class="q-text">How do you handle command injection risks?</div>
+                    <span class="q-difficulty hard">Hard</span>
+                </div>
+                <div class="answer">
+                    <div class="answer-label">Sample Answer</div>
+                    <div class="answer-content">
+                        <p><strong>Multiple layers:</strong></p>
+                        <p><strong>1. Timeouts:</strong> All commands have 120s timeout. Runaway processes are killed.</p>
+                        <p><strong>2. Working directory constraint:</strong> Commands execute in workspace only.</p>
+                        <p><strong>3. Confirmation for destructive ops:</strong> <code>rm -rf</code> requires explicit user confirmation.</p>
+                        <p><strong>4. LLM judgment:</strong> The LLM is instructed to be cautious about destructive commands.</p>
+                        <p><strong>5. Audit trail:</strong> All commands logged with timestamp, arguments, output.</p>
+                        <p><strong>What we don't do:</strong> We don't try to parse/sanitize shell commands - that's fragile. Instead, we contain the blast radius and make recovery easy (checkpoints).</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="qa-item">
+                <div class="question">
+                    <div class="q-number">38</div>
+                    <div class="q-text">How do you protect API keys and secrets?</div>
+                    <span class="q-difficulty medium">Medium</span>
+                </div>
+                <div class="answer">
+                    <div class="answer-label">Sample Answer</div>
+                    <div class="answer-content">
+                        <p><strong>Environment variables:</strong> API keys loaded from <code>.env</code> via python-dotenv. Never hardcoded.</p>
+                        <p><strong>Secret scanning:</strong> Before including files in context, we scan for patterns like <code>APIKEY=</code>, <code>password:</code>. Matched files are excluded or redacted.</p>
+                        <p><strong>Memory exclusion:</strong> We don't store messages containing detected secrets in long-term memory.</p>
+                        <p><strong>Logging:</strong> API keys are never logged. Requests are logged without Authorization headers.</p>
+                        <p><strong>Ollama option:</strong> Users with sensitive code can use Ollama - no data leaves their machine.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="qa-item">
+                <div class="question">
+                    <div class="q-number">39</div>
+                    <div class="q-text">What happens if the LLM tries to do something malicious?</div>
+                    <span class="q-difficulty medium">Medium</span>
+                </div>
+                <div class="answer">
+                    <div class="answer-label">Sample Answer</div>
+                    <div class="answer-content">
+                        <p><strong>Defense in depth:</strong></p>
+                        <p><strong>1. System prompt:</strong> Strong instructions against harmful actions.</p>
+                        <p><strong>2. Tool constraints:</strong> Tools validate inputs, enforce workspace boundaries.</p>
+                        <p><strong>3. Confirmation prompts:</strong> Destructive operations require user approval.</p>
+                        <p><strong>4. Checkpoints:</strong> State is saved before risky operations.</p>
+                        <p><strong>5. Streaming:</strong> User can see and cancel in real-time.</p>
+                        <p>The LLM can't bypass these controls - it can only call the tools we provide, and those tools have safety checks. Even if it tries <code>rm -rf /</code>, path validation blocks it.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="qa-item">
+                <div class="question">
+                    <div class="q-number">40</div>
+                    <div class="q-text">How do you ensure the application follows the principle of least privilege?</div>
+                    <span class="q-difficulty medium">Medium</span>
+                </div>
+                <div class="answer">
+                    <div class="answer-label">Sample Answer</div>
+                    <div class="answer-content">
+                        <p><strong>Multiple levels:</strong></p>
+                        <p><strong>Agent level:</strong> Specialist agents only get tools they need. CodeReviewer can't write files.</p>
+                        <p><strong>Tool level:</strong> Each tool does one thing. <code>read_file</code> can't write.</p>
+                        <p><strong>Scope level:</strong> Operations constrained to workspace directory.</p>
+                        <p><strong>User level:</strong> Destructive operations require explicit confirmation.</p>
+                        <p><strong>Data level:</strong> Sensitive files excluded from context by default.</p>
+                        <p>This limits blast radius: even if something goes wrong in the CodeReviewer, it can't modify files.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- New Guardrails Questions -->
+            <div class="qa-item">
+                <div class="question">
+                    <div class="q-number">41</div>
+                    <div class="q-text">How did you implement NeMo Guardrails in your agent?</div>
+                    <span class="q-difficulty hard">Hard</span>
+                </div>
+                <div class="answer">
+                    <div class="answer-label">Sample Answer</div>
+                    <div class="answer-content">
+                        <p><strong>Dual-mode architecture:</strong></p>
+                        <p>We implemented a guardrails wrapper that supports both NeMo Guardrails (when installed) and lightweight regex-based checks as fallback.</p>
+                        <div class="code-block">
+<pre><span class="keyword">class</span> <span class="function">GuardrailsWrapper</span>:
+    <span class="keyword">def</span> <span class="function">check_input</span>(self, user_input: str):
+        <span class="comment"># Check jailbreak attempts</span>
+        <span class="keyword">if</span> self._check_jailbreak(user_input):
+            <span class="keyword">return</span> False, <span class="string">"Jailbreak detected"</span>
+
+        <span class="comment"># Check command injection</span>
+        <span class="keyword">if</span> self._check_injection(user_input):
+            <span class="keyword">return</span> False, <span class="string">"Dangerous command"</span>
+
+        <span class="keyword">return</span> True, None</pre>
+                        </div>
+                        <p><strong>Integration points:</strong></p>
+                        <p>• <strong>Pre-LLM:</strong> Input checked before agent.run()</p>
+                        <p>• <strong>Post-LLM:</strong> Output sanitized before returning to user</p>
+                        <p>• <strong>Graceful degradation:</strong> Works without NeMo dependency</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="qa-item">
+                <div class="question">
+                    <div class="q-number">42</div>
+                    <div class="q-text">What types of attacks do your guardrails protect against?</div>
+                    <span class="q-difficulty medium">Medium</span>
+                </div>
+                <div class="answer">
+                    <div class="answer-label">Sample Answer</div>
+                    <div class="answer-content">
+                        <p><strong>Five main categories:</strong></p>
+                        <p><strong>1. Jailbreak Attempts:</strong></p>
+                        <p>• "Ignore all previous instructions"</p>
+                        <p>• "DAN mode" / "Developer mode"</p>
+                        <p>• "Pretend you are a hacker"</p>
+                        <p><strong>2. Command Injection:</strong></p>
+                        <p>• <code>rm -rf /</code>, <code>format c:</code></p>
+                        <p>• Fork bombs: <code>:(){ :|:& };:</code></p>
+                        <p>• Shell injection via chaining</p>
+                        <p><strong>3. Path Traversal:</strong></p>
+                        <p>• <code>../../etc/passwd</code></p>
+                        <p>• Access to ~/.ssh, ~/.aws</p>
+                        <p><strong>4. Secret Exposure:</strong></p>
+                        <p>• API keys (sk-*, ghp_*, AKIA*)</p>
+                        <p>• Passwords, tokens, connection strings</p>
+                        <p><strong>5. Dangerous Code Generation:</strong></p>
+                        <p>• <code>eval()</code>, <code>exec()</code></p>
+                        <p>• <code>subprocess.call(shell=True)</code></p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="qa-item">
+                <div class="question">
+                    <div class="q-number">43</div>
+                    <div class="q-text">How do you handle secret redaction in outputs?</div>
+                    <span class="q-difficulty medium">Medium</span>
+                </div>
+                <div class="answer">
+                    <div class="answer-label">Sample Answer</div>
+                    <div class="answer-content">
+                        <p><strong>Pattern-based redaction:</strong></p>
+                        <div class="code-block">
+<pre>SECRET_PATTERNS = [
+    <span class="comment"># OpenAI keys</span>
+    (<span class="string">r"sk-[a-zA-Z0-9]{32,}"</span>, <span class="string">"sk-***REDACTED***"</span>),
+    <span class="comment"># GitHub tokens</span>
+    (<span class="string">r"ghp_[a-zA-Z0-9]{36}"</span>, <span class="string">"ghp_***REDACTED***"</span>),
+    <span class="comment"># Generic passwords</span>
+    (<span class="string">r"password['\"]?\s*[:=]\s*['\"]?([^\s,}]+)"</span>,
+     <span class="string">"password=***REDACTED***"</span>),
+]
+
+<span class="keyword">async def</span> <span class="function">redact_secrets</span>(text: str) -> str:
+    <span class="keyword">for</span> pattern, replacement <span class="keyword">in</span> SECRET_PATTERNS:
+        text = re.sub(pattern, replacement, text)
+    <span class="keyword">return</span> text</pre>
+                        </div>
+                        <p><strong>25+ patterns</strong> covering: AWS, GCP, Azure, Stripe, SendGrid, Slack, private keys, connection strings.</p>
+                        <p><strong>Applied to:</strong> All LLM responses before display and before storing in memory.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="qa-item">
+                <div class="question">
+                    <div class="q-number">44</div>
+                    <div class="q-text">What design patterns did you use for the guardrails system?</div>
+                    <span class="q-difficulty hard">Hard</span>
+                </div>
+                <div class="answer">
+                    <div class="answer-label">Sample Answer</div>
+                    <div class="answer-content">
+                        <p><strong>Four main patterns:</strong></p>
+                        <p><strong>1. Decorator Pattern:</strong></p>
+                        <p>GuardrailsWrapper decorates the agent's run() method, adding checks without modifying Agno internals.</p>
+                        <p><strong>2. Chain of Responsibility:</strong></p>
+                        <p>Multiple rails (jailbreak → injection → path → secrets) are checked in sequence. If any fails, request is blocked.</p>
+                        <p><strong>3. Strategy Pattern:</strong></p>
+                        <p>Two strategies for guardrails: NeMo (full) and Lightweight (regex). System picks based on availability.</p>
+                        <p><strong>4. Singleton:</strong></p>
+                        <p><code>get_guardrails()</code> returns shared instance, ensuring consistent configuration across the application.</p>
+                        <div class="code-block">
+<pre><span class="keyword">def</span> <span class="function">get_guardrails</span>() -> GuardrailsWrapper:
+    <span class="keyword">global</span> _guardrails
+    <span class="keyword">if</span> _guardrails <span class="keyword">is</span> None:
+        _guardrails = GuardrailsWrapper()
+    <span class="keyword">return</span> _guardrails</pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="qa-item">
+                <div class="question">
+                    <div class="q-number">45</div>
+                    <div class="q-text">How do guardrails work with streaming responses?</div>
+                    <span class="q-difficulty hard">Hard</span>
+                </div>
+                <div class="answer">
+                    <div class="answer-label">Sample Answer</div>
+                    <div class="answer-content">
+                        <p><strong>Challenge:</strong> With streaming, we don't have the complete response until the end.</p>
+                        <p><strong>Our approach:</strong></p>
+                        <p><strong>1. Input rails run synchronously</strong> before streaming starts - blocking dangerous requests immediately.</p>
+                        <p><strong>2. During streaming:</strong> Tokens pass through unchanged for low latency.</p>
+                        <p><strong>3. After streaming completes:</strong> Full response is checked by output rails for logging/alerting.</p>
+                        <div class="code-block">
+<pre><span class="keyword">def</span> <span class="function">run</span>(self, message: str, stream: bool = True):
+    <span class="comment"># Input check BEFORE streaming</span>
+    is_safe, error = self.guardrails.check_input_sync(message)
+    <span class="keyword">if not</span> is_safe:
+        <span class="keyword">return</span> BlockedResponse(error)
+
+    <span class="comment"># Stream response</span>
+    response = self.agent.run(message, stream=True)
+
+    <span class="comment"># Post-process after streaming completes</span>
+    <span class="keyword">if</span> self.guardrails:
+        self._log_if_sensitive(response)</pre>
+                        </div>
+                        <p><strong>Trade-off:</strong> Real-time token blocking would require ML classification per token - too slow. Our approach prioritizes UX while still catching issues.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Category 9: Performance -->
+        <section id="performance" class="category">
+            <div class="category-header">
+                <div class="category-icon">⚡</div>
+                <h2>Performance</h2>
+                <span class="count">5 questions</span>
+            </div>
+
+            <div class="qa-item">
+                <div class="question">
+                    <div class="q-number">46</div>
+                    <div class="q-text">How did you optimize for perceived performance?</div>
+                    <span class="q-difficulty medium">Medium</span>
+                </div>
+                <div class="answer">
+                    <div class="answer-label">Sample Answer</div>
+                    <div class="answer-content">
+                        <p><strong>Streaming is the biggest win:</strong></p>
+                        <p>Without streaming: 5-30 second wait, then entire response.</p>
+                        <p>With streaming: ~100ms to first token, progressive display.</p>
+                        <p><strong>Even if total time is the same, it feels faster</strong> because users see immediate progress.</p>
+                        <p><strong>Other optimizations:</strong></p>
+                        <p>• Tool execution progress indicators</p>
+                        <p>• Lazy loading of non-essential modules</p>
+                        <p>• Quick slash command parsing (no LLM needed for /git status)</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="qa-item">
+                <div class="question">
+                    <div class="q-number">47</div>
+                    <div class="q-text">How do you manage context window limits efficiently?</div>
+                    <span class="q-difficulty hard">Hard</span>
+                </div>
+                <div class="answer">
+                    <div class="answer-label">Sample Answer</div>
+                    <div class="answer-content">
+                        <p><strong>Smart Context Window with budget allocation:</strong></p>
+                        <p>• System prompt: 15%</p>
+                        <p>• Memory recall: 10%</p>
+                        <p>• Retrieved files: 45%</p>
+                        <p>• User query: 10%</p>
+                        <p>• Response reserve: 20%</p>
+                        <p><strong>Prioritization:</strong> Files scored by relevance + importance. High-priority files included first.</p>
+                        <p><strong>Truncation:</strong> If a file is too large, we include start + end, or just the relevant sections.</p>
+                        <p><strong>Result:</strong> We maximize useful context while never exceeding limits. No wasted tokens on low-value content.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="qa-item">
+                <div class="question">
+                    <div class="q-number">48</div>
+                    <div class="q-text">What caching strategies do you use?</div>
+                    <span class="q-difficulty medium">Medium</span>
+                </div>
+                <div class="answer">
+                    <div class="answer-label">Sample Answer</div>
+                    <div class="answer-content">
+                        <p><strong>@lru_cache for settings:</strong></p>
+                        <div class="code-block">
+<pre><span class="decorator">@lru_cache</span>
+<span class="keyword">def</span> <span class="function">get_settings</span>():
+    <span class="keyword">return</span> Settings()  <span class="comment"># Loaded once</span></pre>
+                        </div>
+                        <p><strong>Project detection caching:</strong> Once we detect "this is a Python project", we cache that for the session.</p>
+                        <p><strong>File structure caching:</strong> Directory tree cached with short TTL (invalidated on file changes).</p>
+                        <p><strong>What we don't cache:</strong> File contents (they change), LLM responses (not repeatable with streaming).</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="qa-item">
+                <div class="question">
+                    <div class="q-number">49</div>
+                    <div class="q-text">How do you handle large codebases?</div>
+                    <span class="q-difficulty medium">Medium</span>
+                </div>
+                <div class="answer">
+                    <div class="answer-label">Sample Answer</div>
+                    <div class="answer-content">
+                        <p><strong>Selective context loading:</strong></p>
+                        <p>We don't try to load entire codebase. Smart Context Window:</p>
+                        <p>1. Searches for relevant files based on query</p>
+                        <p>2. Prioritizes by relevance score</p>
+                        <p>3. Stays within token budget</p>
+                        <p>For a 100K file codebase, we might include 10-20 relevant files.</p>
+                        <p><strong>Code indexing:</strong> We build symbol indexes for faster search. Find class definitions without reading every file.</p>
+                        <p><strong>Incremental operations:</strong> Operations like search use streaming results - stop early once we have enough matches.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="qa-item">
+                <div class="question">
+                    <div class="q-number">50</div>
+                    <div class="q-text">What metrics do you track for performance?</div>
+                    <span class="q-difficulty easy">Easy</span>
+                </div>
+                <div class="answer">
+                    <div class="answer-label">Sample Answer</div>
+                    <div class="answer-content">
+                        <p><strong>Key metrics:</strong></p>
+                        <p>• <strong>Time to first token:</strong> How quickly user sees first response (~100ms target)</p>
+                        <p>• <strong>Total response time:</strong> End-to-end request duration</p>
+                        <p>• <strong>Tool execution time:</strong> How long each tool takes</p>
+                        <p>• <strong>Token usage:</strong> Input and output tokens per request</p>
+                        <p>• <strong>Context utilization:</strong> What percentage of budget used</p>
+                        <p>• <strong>Memory recall latency:</strong> Time to search memory</p>
+                        <p>These are logged via <code>/metrics</code> command for debugging.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Category 10: Design Decisions -->
+        <section id="decisions" class="category">
+            <div class="category-header">
+                <div class="category-icon">💡</div>
+                <h2>Design Decisions</h2>
+                <span class="count">5 questions</span>
+            </div>
+
+            <div class="qa-item">
+                <div class="question">
+                    <div class="q-number">51</div>
+                    <div class="q-text">What was the most challenging part of this project?</div>
+                    <span class="q-difficulty medium">Medium</span>
+                </div>
+                <div class="answer">
+                    <div class="answer-label">Sample Answer</div>
+                    <div class="answer-content">
+                        <p><strong>Context management was the hardest:</strong></p>
+                        <p>The core challenge is fitting relevant information into a fixed context window. Include too little and responses are generic. Include too much and you exceed limits.</p>
+                        <p><strong>Specific challenges:</strong></p>
+                        <p>• Determining file relevance without reading every file</p>
+                        <p>• Balancing system prompt size vs. user context</p>
+                        <p>• Memory recall without semantic search (we use pattern matching)</p>
+                        <p>• Token estimation accuracy</p>
+                        <p>I solved this with the priority scoring system and budget allocation. It's not perfect, but it works well for most use cases.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="qa-item">
+                <div class="question">
+                    <div class="q-number">52</div>
+                    <div class="q-text">What would you do differently if starting over?</div>
+                    <span class="q-difficulty medium">Medium</span>
+                </div>
+                <div class="answer">
+                    <div class="answer-label">Sample Answer</div>
+                    <div class="answer-content">
+                        <p><strong>Add vector embeddings earlier:</strong></p>
+                        <p>Currently memory recall uses pattern matching. Vector embeddings would enable semantic search - finding conceptually similar memories even with different words.</p>
+                        <p><strong>More structured tool outputs:</strong></p>
+                        <p>Tools return strings, which works but limits what we can do. Structured outputs (JSON) would enable richer UI and better tool chaining.</p>
+                        <p><strong>Better error recovery:</strong></p>
+                        <p>Current approach catches errors but could be smarter about retrying with different parameters.</p>
+                        <p><strong>Test coverage:</strong></p>
+                        <p>Started testing late. Would add tests from day one if starting over.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="qa-item">
+                <div class="question">
+                    <div class="q-number">53</div>
+                    <div class="q-text">How do you handle the unpredictability of LLM outputs?</div>
+                    <span class="q-difficulty hard">Hard</span>
+                </div>
+                <div class="answer">
+                    <div class="answer-label">Sample Answer</div>
+                    <div class="answer-content">
+                        <p><strong>Design for unreliability:</strong></p>
+                        <p><strong>1. Defensive tool implementations:</strong> Tools validate inputs, handle unexpected values, return helpful errors.</p>
+                        <p><strong>2. Clear system prompts:</strong> Detailed instructions reduce variance but don't eliminate it.</p>
+                        <p><strong>3. Multiple fallbacks:</strong> If one approach fails, the agent can try alternatives.</p>
+                        <p><strong>4. Human in the loop:</strong> Destructive operations require confirmation. User can cancel anytime.</p>
+                        <p><strong>5. Recovery mechanisms:</strong> Checkpoints and undo let users recover from bad outputs.</p>
+                        <p>Accept that LLMs will sometimes do unexpected things. Design systems that contain failures and enable recovery.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="qa-item">
+                <div class="question">
+                    <div class="q-number">54</div>
+                    <div class="q-text">Why Python for this project?</div>
+                    <span class="q-difficulty easy">Easy</span>
+                </div>
+                <div class="answer">
+                    <div class="answer-label">Sample Answer</div>
+                    <div class="answer-content">
+                        <p><strong>Best ecosystem for AI/LLM work:</strong></p>
+                        <p>• <strong>Agno framework:</strong> Python-native agent framework</p>
+                        <p>• <strong>Library support:</strong> Anthropic SDK, Ollama SDK, FastAPI</p>
+                        <p>• <strong>Rapid development:</strong> Iterate quickly on prompts and tools</p>
+                        <p>• <strong>Type hints:</strong> Python 3.11+ type hints for better code quality</p>
+                        <p>• <strong>Pydantic:</strong> Great for settings and data validation</p>
+                        <p><strong>Alternatives considered:</strong></p>
+                        <p>TypeScript was an option but Python's AI ecosystem is more mature. Rust would be overkill for a CLI tool.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="qa-item">
+                <div class="question">
+                    <div class="q-number">55</div>
+                    <div class="q-text">What are the limitations of your current implementation?</div>
+                    <span class="q-difficulty medium">Medium</span>
+                </div>
+                <div class="answer">
+                    <div class="answer-label">Sample Answer</div>
+                    <div class="answer-content">
+                        <p><strong>Honest assessment:</strong></p>
+                        <p><strong>1. No semantic search:</strong> Memory recall uses pattern matching. "Auth bug" won't find "authentication issue".</p>
+                        <p><strong>2. Single-user:</strong> Designed for one developer. No multi-user collaboration.</p>
+                        <p><strong>3. Language detection:</strong> Some tools assume file type from extension. Could be smarter.</p>
+                        <p><strong>4. Large file handling:</strong> Files over 10K lines need better chunking strategies.</p>
+                        <p><strong>5. Offline first-run:</strong> Needs Ollama running for initial setup in offline mode.</p>
+                        <p><strong>Each limitation has a solution</strong> in the roadmap, but being honest about current state is important.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Interview Tips -->
+        <section class="tips-section">
+            <h2>💡 Interview Tips</h2>
+            <div class="tips-grid">
+                <div class="tip-card">
+                    <h4>🎯 Be Specific</h4>
+                    <p>Reference actual file names, function names, and line counts. "We have 15 tools across 10 files" is better than "many tools".</p>
+                </div>
+                <div class="tip-card">
+                    <h4>📊 Use Numbers</h4>
+                    <p>~25K LOC, 69 files, 50+ commands. Concrete metrics show you understand your codebase.</p>
+                </div>
+                <div class="tip-card">
+                    <h4>🤔 Explain Trade-offs</h4>
+                    <p>Every decision has pros and cons. Explain why you chose one approach over alternatives.</p>
+                </div>
+                <div class="tip-card">
+                    <h4>💭 Be Honest</h4>
+                    <p>If you don't know something, say so. Offer to explain what you do know or how you'd find out.</p>
+                </div>
+                <div class="tip-card">
+                    <h4>🔗 Connect Concepts</h4>
+                    <p>Show how components work together. "The memory system feeds into the RAG pipeline which..."</p>
+                </div>
+                <div class="tip-card">
+                    <h4>📝 Draw Diagrams</h4>
+                    <p>If explaining architecture, offer to draw it. Visual explanations are often clearer.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>55 Interview Questions - Code Agent (Now with Guardrails!)</p>
+            <p style="margin-top: 10px;"><a href="flows/index.html" style="color: var(--primary); text-decoration: none;">← Back to Architecture Docs</a></p>
+        </footer>
+    </div>
+</body>
+</html>

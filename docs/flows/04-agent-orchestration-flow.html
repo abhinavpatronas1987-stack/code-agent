@@ -1,0 +1,875 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agent Orchestration Flow - Code Agent</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+        :root {
+            --primary: #8b5cf6;
+            --primary-glow: rgba(139, 92, 246, 0.4);
+            --secondary: #06b6d4;
+            --accent: #f43f5e;
+            --success: #10b981;
+            --master: #6366f1;
+            --reviewer: #22d3ee;
+            --debugger: #f472b6;
+            --tester: #34d399;
+            --refactor: #fbbf24;
+            --docs: #a78bfa;
+            --bg-dark: #030712;
+            --bg-card: rgba(15, 23, 42, 0.8);
+            --bg-glass: rgba(255, 255, 255, 0.03);
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --border: rgba(148, 163, 184, 0.1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', system-ui, sans-serif;
+            background: var(--bg-dark);
+            color: var(--text-primary);
+            min-height: 100vh;
+        }
+
+        .bg-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background:
+                radial-gradient(circle at 30% 30%, rgba(139, 92, 246, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 70% 70%, rgba(6, 182, 212, 0.08) 0%, transparent 50%);
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+
+        .header-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--bg-glass);
+            border: 1px solid var(--primary);
+            padding: 8px 20px;
+            border-radius: 50px;
+            font-size: 0.85rem;
+            color: var(--primary);
+            margin-bottom: 20px;
+        }
+
+        .header h1 {
+            font-size: 3.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #8b5cf6 0%, #06b6d4 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 15px;
+        }
+
+        .header p {
+            font-size: 1.25rem;
+            color: var(--text-secondary);
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        /* ReAct Section */
+        .react-section {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            padding: 40px;
+            margin-bottom: 60px;
+        }
+
+        .react-section h2 {
+            text-align: center;
+            margin-bottom: 15px;
+            font-size: 1.8rem;
+        }
+
+        .react-section > p {
+            text-align: center;
+            color: var(--text-secondary);
+            margin-bottom: 40px;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .react-loop {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+            flex-wrap: wrap;
+            position: relative;
+        }
+
+        .react-step {
+            background: var(--bg-glass);
+            border: 2px solid var(--border);
+            border-radius: 20px;
+            padding: 30px;
+            text-align: center;
+            width: 180px;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .react-step:hover {
+            transform: translateY(-10px);
+            border-color: var(--primary);
+            box-shadow: 0 20px 40px rgba(139, 92, 246, 0.2);
+        }
+
+        .react-step.think {
+            background: linear-gradient(135deg, rgba(139, 92, 246, 0.2), rgba(99, 102, 241, 0.1));
+            border-color: var(--primary);
+        }
+
+        .react-step .icon {
+            font-size: 3rem;
+            margin-bottom: 15px;
+        }
+
+        .react-step h4 {
+            font-size: 1.2rem;
+            margin-bottom: 8px;
+        }
+
+        .react-step p {
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+        }
+
+        .react-arrow {
+            font-size: 2rem;
+            color: var(--primary);
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateX(0); }
+            50% { transform: translateX(5px); }
+        }
+
+        .react-loop-arrow {
+            position: absolute;
+            bottom: -40px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: var(--primary);
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* Master-Specialist Diagram */
+        .hierarchy-section {
+            margin-bottom: 60px;
+        }
+
+        .hierarchy-section h2 {
+            text-align: center;
+            margin-bottom: 40px;
+            font-size: 1.8rem;
+        }
+
+        .hierarchy-diagram {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 30px;
+        }
+
+        .master-agent {
+            background: linear-gradient(135deg, var(--master), #4f46e5);
+            border-radius: 24px;
+            padding: 35px 50px;
+            text-align: center;
+            position: relative;
+            box-shadow: 0 20px 60px rgba(99, 102, 241, 0.3);
+        }
+
+        .master-agent::after {
+            content: '';
+            position: absolute;
+            bottom: -30px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 4px;
+            height: 30px;
+            background: var(--master);
+        }
+
+        .master-agent .icon {
+            font-size: 3rem;
+            margin-bottom: 15px;
+        }
+
+        .master-agent h3 {
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+        }
+
+        .master-agent p {
+            opacity: 0.9;
+            font-size: 0.95rem;
+        }
+
+        .delegation-label {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            padding: 10px 25px;
+            border-radius: 50px;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .specialists-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            max-width: 1000px;
+            width: 100%;
+        }
+
+        .specialist-card {
+            background: var(--bg-card);
+            border: 2px solid var(--border);
+            border-radius: 20px;
+            padding: 25px;
+            text-align: center;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .specialist-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+        }
+
+        .specialist-card.reviewer::before { background: var(--reviewer); }
+        .specialist-card.debugger::before { background: var(--debugger); }
+        .specialist-card.tester::before { background: var(--tester); }
+        .specialist-card.refactor::before { background: var(--refactor); }
+        .specialist-card.docs::before { background: var(--docs); }
+
+        .specialist-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .specialist-card.reviewer:hover { border-color: var(--reviewer); }
+        .specialist-card.debugger:hover { border-color: var(--debugger); }
+        .specialist-card.tester:hover { border-color: var(--tester); }
+        .specialist-card.refactor:hover { border-color: var(--refactor); }
+        .specialist-card.docs:hover { border-color: var(--docs); }
+
+        .specialist-card .icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            margin: 0 auto 15px;
+        }
+
+        .specialist-card.reviewer .icon { background: rgba(34, 211, 238, 0.2); }
+        .specialist-card.debugger .icon { background: rgba(244, 114, 182, 0.2); }
+        .specialist-card.tester .icon { background: rgba(52, 211, 153, 0.2); }
+        .specialist-card.refactor .icon { background: rgba(251, 191, 36, 0.2); }
+        .specialist-card.docs .icon { background: rgba(167, 139, 250, 0.2); }
+
+        .specialist-card h4 {
+            font-size: 1.1rem;
+            margin-bottom: 10px;
+        }
+
+        .specialist-card p {
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            margin-bottom: 15px;
+        }
+
+        .specialist-tools {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .specialist-tools span {
+            background: var(--bg-dark);
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 0.7rem;
+            color: var(--text-secondary);
+            font-family: monospace;
+        }
+
+        /* Agent Code Section */
+        .code-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 60px;
+        }
+
+        .code-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            overflow: hidden;
+        }
+
+        .code-header {
+            padding: 20px 25px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: linear-gradient(135deg, rgba(139, 92, 246, 0.1), transparent);
+        }
+
+        .code-header .icon {
+            width: 40px;
+            height: 40px;
+            background: var(--primary);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .code-header h3 {
+            font-size: 1.1rem;
+        }
+
+        .code-body {
+            padding: 20px;
+        }
+
+        .code-block {
+            background: #0d1117;
+            border-radius: 12px;
+            padding: 20px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem;
+            overflow-x: auto;
+            line-height: 1.7;
+        }
+
+        .code-block .keyword { color: #ff7b72; }
+        .code-block .class { color: #ffa657; }
+        .code-block .string { color: #a5d6ff; }
+        .code-block .comment { color: #8b949e; }
+        .code-block .function { color: #d2a8ff; }
+        .code-block .param { color: #79c0ff; }
+
+        /* Delegation Flow */
+        .delegation-section {
+            background: linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(6, 182, 212, 0.1));
+            border: 1px solid var(--primary);
+            border-radius: 24px;
+            padding: 40px;
+            margin-bottom: 60px;
+        }
+
+        .delegation-section h2 {
+            text-align: center;
+            margin-bottom: 40px;
+            font-size: 1.8rem;
+        }
+
+        .delegation-flow {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .delegation-step {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .delegation-number {
+            width: 50px;
+            height: 50px;
+            background: var(--primary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 1.2rem;
+            flex-shrink: 0;
+        }
+
+        .delegation-content {
+            flex: 1;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 20px 25px;
+        }
+
+        .delegation-content h4 {
+            margin-bottom: 8px;
+            font-size: 1rem;
+        }
+
+        .delegation-content p {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .delegation-content code {
+            background: var(--bg-dark);
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            color: var(--secondary);
+        }
+
+        /* Benefits Grid */
+        .benefits-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            margin-bottom: 60px;
+        }
+
+        .benefit-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 30px;
+            transition: all 0.3s ease;
+        }
+
+        .benefit-card:hover {
+            border-color: var(--primary);
+            transform: translateY(-5px);
+        }
+
+        .benefit-card h3 {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+        }
+
+        .benefit-card h3 span {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .benefit-card p {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+
+        /* Interview Section */
+        .interview-section {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            padding: 40px;
+        }
+
+        .interview-section h2 {
+            text-align: center;
+            margin-bottom: 30px;
+            color: var(--primary);
+        }
+
+        .qa-list {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .qa-item {
+            background: var(--bg-glass);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 25px;
+        }
+
+        .qa-item h4 {
+            color: var(--accent);
+            margin-bottom: 12px;
+            font-size: 1rem;
+        }
+
+        .qa-item p {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            line-height: 1.7;
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            margin-top: 60px;
+            padding: 30px;
+            border-top: 1px solid var(--border);
+            color: var(--text-secondary);
+        }
+
+        .footer a {
+            color: var(--primary);
+            text-decoration: none;
+        }
+
+        @media (max-width: 900px) {
+            .header h1 { font-size: 2.5rem; }
+            .code-section { grid-template-columns: 1fr; }
+            .react-loop { flex-direction: column; }
+            .react-arrow { transform: rotate(90deg); }
+            .delegation-step { flex-direction: column; text-align: center; }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-animation"></div>
+
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-badge">🎭 AGENT ARCHITECTURE</div>
+            <h1>Agent Orchestration Flow</h1>
+            <p>How Code Agent coordinates master and specialist agents using the ReAct pattern</p>
+        </header>
+
+        <!-- ReAct Pattern Section -->
+        <section class="react-section">
+            <h2>🔄 The ReAct Pattern (Reasoning + Acting)</h2>
+            <p>Agents follow a continuous loop of thinking, acting, and observing results until the task is complete.</p>
+
+            <div class="react-loop">
+                <div class="react-step">
+                    <div class="icon">📥</div>
+                    <h4>Observe</h4>
+                    <p>Receive user input or tool result</p>
+                </div>
+                <div class="react-arrow">→</div>
+                <div class="react-step think">
+                    <div class="icon">🤔</div>
+                    <h4>Think</h4>
+                    <p>Reason about what to do next</p>
+                </div>
+                <div class="react-arrow">→</div>
+                <div class="react-step">
+                    <div class="icon">⚡</div>
+                    <h4>Act</h4>
+                    <p>Execute tool or generate response</p>
+                </div>
+                <div class="react-arrow">→</div>
+                <div class="react-step">
+                    <div class="icon">👀</div>
+                    <h4>Observe</h4>
+                    <p>See the result of the action</p>
+                </div>
+
+                <div class="react-loop-arrow">
+                    ↩️ Loop until task complete
+                </div>
+            </div>
+        </section>
+
+        <!-- Master-Specialist Hierarchy -->
+        <section class="hierarchy-section">
+            <h2>🏛️ Master-Specialist Architecture</h2>
+
+            <div class="hierarchy-diagram">
+                <div class="master-agent">
+                    <div class="icon">🧠</div>
+                    <h3>CodingAgent</h3>
+                    <p>Master Orchestrator - Handles all requests, delegates when needed</p>
+                </div>
+
+                <div class="delegation-label">Delegates specialized tasks to →</div>
+
+                <div class="specialists-grid">
+                    <div class="specialist-card reviewer">
+                        <div class="icon">🔍</div>
+                        <h4>CodeReviewer</h4>
+                        <p>Code quality, bugs, security issues, best practices</p>
+                        <div class="specialist-tools">
+                            <span>read_file</span>
+                            <span>search_files</span>
+                        </div>
+                    </div>
+
+                    <div class="specialist-card debugger">
+                        <div class="icon">🐛</div>
+                        <h4>Debugger</h4>
+                        <p>Error analysis, root cause identification, fix suggestions</p>
+                        <div class="specialist-tools">
+                            <span>read_file</span>
+                            <span>search_files</span>
+                            <span>run_command</span>
+                        </div>
+                    </div>
+
+                    <div class="specialist-card tester">
+                        <div class="icon">🧪</div>
+                        <h4>Tester</h4>
+                        <p>Unit test generation, test coverage analysis</p>
+                        <div class="specialist-tools">
+                            <span>read_file</span>
+                            <span>write_file</span>
+                            <span>test_project</span>
+                        </div>
+                    </div>
+
+                    <div class="specialist-card refactor">
+                        <div class="icon">🔄</div>
+                        <h4>Refactorer</h4>
+                        <p>Code improvement, pattern application, cleanup</p>
+                        <div class="specialist-tools">
+                            <span>read_file</span>
+                            <span>edit_file</span>
+                            <span>search_files</span>
+                        </div>
+                    </div>
+
+                    <div class="specialist-card docs">
+                        <div class="icon">📝</div>
+                        <h4>DocAgent</h4>
+                        <p>Documentation, docstrings, README generation</p>
+                        <div class="specialist-tools">
+                            <span>read_file</span>
+                            <span>write_file</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Agent Implementation Code -->
+        <section class="code-section">
+            <div class="code-card">
+                <div class="code-header">
+                    <div class="icon">🧠</div>
+                    <h3>Master Agent Setup</h3>
+                </div>
+                <div class="code-body">
+                    <div class="code-block">
+<pre><span class="keyword">from</span> agno.agent <span class="keyword">import</span> Agent
+
+<span class="comment"># Master agent with all tools</span>
+agent = <span class="class">Agent</span>(
+    name=<span class="string">"CodingAgent"</span>,
+    model=<span class="function">get_model</span>(),
+    instructions=<span class="string">"""
+    You are Code Agent, an AI development assistant.
+    For specialized tasks, delegate to sub-agents:
+    - Code review → CodeReviewer
+    - Debugging → Debugger
+    - Test generation → Tester
+    """</span>,
+    tools=[
+        <span class="comment"># All 15+ tools available</span>
+        read_file, write_file, edit_file,
+        run_terminal_command, search_files,
+        git_commit, code_review, debug_help,
+        <span class="comment"># ... more tools</span>
+    ],
+    session_id=session_id,
+    stream=<span class="keyword">True</span>
+)</pre>
+                    </div>
+                </div>
+            </div>
+
+            <div class="code-card">
+                <div class="code-header">
+                    <div class="icon">🔍</div>
+                    <h3>Specialist Agent Setup</h3>
+                </div>
+                <div class="code-body">
+                    <div class="code-block">
+<pre><span class="keyword">class</span> <span class="class">CodeReviewerAgent</span>(BaseSpecializedAgent):
+    <span class="string">"""Specialized for code review tasks."""</span>
+
+    <span class="keyword">def</span> <span class="function">__init__</span>(self):
+        <span class="keyword">super</span>().__init__(
+            name=<span class="string">"CodeReviewer"</span>,
+            instructions=<span class="string">"""
+            You are an expert code reviewer.
+            Focus on:
+            1. Code quality & best practices
+            2. Potential bugs & edge cases
+            3. Security vulnerabilities
+            4. Performance issues
+            5. Readability & maintainability
+            """</span>,
+            tools=[read_file, search_files]
+            <span class="comment"># Limited tools - read only!</span>
+        )
+
+    <span class="keyword">def</span> <span class="function">review</span>(self, file_path: <span class="class">str</span>):
+        <span class="keyword">return</span> self.run(
+            f<span class="string">"Review: {file_path}"</span>
+        )</pre>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Delegation Flow -->
+        <section class="delegation-section">
+            <h2>🔄 Task Delegation Flow</h2>
+
+            <div class="delegation-flow">
+                <div class="delegation-step">
+                    <div class="delegation-number">1</div>
+                    <div class="delegation-content">
+                        <h4>User Request Received</h4>
+                        <p>User says: <code>"Review the authentication module for security issues"</code></p>
+                    </div>
+                </div>
+
+                <div class="delegation-step">
+                    <div class="delegation-number">2</div>
+                    <div class="delegation-content">
+                        <h4>Master Agent Analyzes</h4>
+                        <p>CodingAgent recognizes this is a code review task, best handled by a specialist.</p>
+                    </div>
+                </div>
+
+                <div class="delegation-step">
+                    <div class="delegation-number">3</div>
+                    <div class="delegation-content">
+                        <h4>Invokes Specialist Tool</h4>
+                        <p>Calls <code>code_review(file_path="src/auth/")</code> which instantiates CodeReviewerAgent.</p>
+                    </div>
+                </div>
+
+                <div class="delegation-step">
+                    <div class="delegation-number">4</div>
+                    <div class="delegation-content">
+                        <h4>Specialist Executes</h4>
+                        <p>CodeReviewerAgent reads files, analyzes code, produces detailed review with security focus.</p>
+                    </div>
+                </div>
+
+                <div class="delegation-step">
+                    <div class="delegation-number">5</div>
+                    <div class="delegation-content">
+                        <h4>Result Returned</h4>
+                        <p>Review findings returned to Master Agent, who formats and presents to user.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Benefits Grid -->
+        <section class="benefits-grid">
+            <div class="benefit-card">
+                <h3><span>🎯</span> Focused Instructions</h3>
+                <p>Each specialist has a focused system prompt optimized for its task. CodeReviewer only thinks about code quality, not about writing files.</p>
+            </div>
+
+            <div class="benefit-card">
+                <h3><span>🔒</span> Principle of Least Privilege</h3>
+                <p>Specialists only get tools they need. CodeReviewer can read but not write. This prevents accidental modifications during review.</p>
+            </div>
+
+            <div class="benefit-card">
+                <h3><span>📈</span> Better Results</h3>
+                <p>Specialized prompts produce more accurate, detailed outputs than a general-purpose agent trying to do everything.</p>
+            </div>
+
+            <div class="benefit-card">
+                <h3><span>🔧</span> Easy Maintenance</h3>
+                <p>Update or add specialists without touching the master agent. Modular design enables easy extension.</p>
+            </div>
+
+            <div class="benefit-card">
+                <h3><span>⚡</span> Efficient Token Usage</h3>
+                <p>Specialists have smaller context (fewer tools, focused prompt). Less tokens wasted on irrelevant capabilities.</p>
+            </div>
+
+            <div class="benefit-card">
+                <h3><span>🧩</span> Separation of Concerns</h3>
+                <p>Each agent has a single responsibility. Clean architecture that's easy to reason about and test.</p>
+            </div>
+        </section>
+
+        <!-- Interview Section -->
+        <section class="interview-section">
+            <h2>🎯 Interview Key Points</h2>
+
+            <div class="qa-list">
+                <div class="qa-item">
+                    <h4>Q: What is the ReAct pattern?</h4>
+                    <p><strong>ReAct = Reasoning + Acting.</strong> It's a loop where the agent: (1) Observes input, (2) Thinks about what to do, (3) Takes an action (tool call), (4) Observes the result, (5) Repeats until done. This mirrors human problem-solving: think, act, observe, adjust. It enables multi-step reasoning and error recovery.</p>
+                </div>
+
+                <div class="qa-item">
+                    <h4>Q: Why use a Master-Specialist architecture?</h4>
+                    <p><strong>Specialization improves quality.</strong> A general agent trying to do everything produces mediocre results. Specialists with focused prompts and limited tools excel at their specific task. It's like having a team: project manager (master) coordinates, while experts (specialists) handle specific work. Also enables security through tool restriction.</p>
+                </div>
+
+                <div class="qa-item">
+                    <h4>Q: How does the master decide when to delegate?</h4>
+                    <p><strong>Through its system prompt and tool availability.</strong> The master's instructions tell it: "For code review tasks, use the code_review tool." When it encounters a review request, it recognizes the pattern and calls the appropriate specialist tool. The LLM's training enables this intent matching.</p>
+                </div>
+
+                <div class="qa-item">
+                    <h4>Q: What's the benefit of limiting specialist tools?</h4>
+                    <p><strong>Principle of least privilege.</strong> CodeReviewer only has read access - it can't accidentally modify files while reviewing. This is defensive design: even if the specialist makes a mistake, the damage is limited. It also reduces the prompt size since fewer tools means less schema to include.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>Agent Orchestration Flow • Code Agent Architecture</p>
+            <p style="margin-top: 10px;"><a href="index.html">← Back to Index</a></p>
+        </footer>
+    </div>
+</body>
+</html>
